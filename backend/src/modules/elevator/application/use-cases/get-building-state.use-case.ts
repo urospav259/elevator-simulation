@@ -1,10 +1,10 @@
 import { BuildingState } from '../../domain/types/building-state';
-import { BuildingStatePublisher } from '../ports/building-state.publisher';
+import { BuildingStateRepository } from '../ports/building-state.repository';
 
 export class GetBuildingStateUseCase {
-  constructor(private publisher: BuildingStatePublisher) {}
+  constructor(private buildingStateRepository: BuildingStateRepository) {}
 
-  execute(state: BuildingState) {
-    this.publisher.publish(state);
+  async execute(): Promise<BuildingState> {
+    return this.buildingStateRepository.getBuildingData();
   }
 }
