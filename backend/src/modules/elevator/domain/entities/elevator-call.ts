@@ -17,6 +17,25 @@ export class ElevatorCall {
     this.assignedElevatorId = null;
   }
 
+  static restore(params: {
+    id: string;
+    floor: number;
+    direction: Exclude<Direction, Direction.IDLE>;
+    status: CallStatus | null;
+    assignedElevatorId: string | null;
+    createdAt: Date | null;
+    finishedAt: Date | null;
+  }): ElevatorCall {
+    const call = new ElevatorCall(params.id, params.floor, params.direction);
+
+    call.status = params.status;
+    call.assignedElevatorId = params.assignedElevatorId;
+    call.createdAt = params.createdAt;
+    call.finishedAt = params.finishedAt;
+
+    return call;
+  }
+
   assignElevator(elevatorId: string) {
     if (!this.createdAt) {
       this.createdAt = new Date();
@@ -31,8 +50,20 @@ export class ElevatorCall {
     this.status = CallStatus.COMPLETED;
   }
 
+  public getId(): string {
+    return this.id;
+  }
+
   public getCurrentLocation(): number {
     return this.floor;
+  }
+
+  public getStatus(): CallStatus | null {
+    return this.status;
+  }
+
+  public getAssignedElevatorId(): string | null {
+    return this.assignedElevatorId;
   }
 
   public getDirection(): Direction {

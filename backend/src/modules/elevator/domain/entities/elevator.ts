@@ -26,8 +26,16 @@ export class Elevator {
     return this.assignedCalls;
   }
 
+  getId(): string {
+    return this.id;
+  }
+
   getDirection(): Direction {
     return this.direction;
+  }
+
+  getDoorState(): DoorState {
+    return this.doorState;
   }
 
   get stops(): number[] {
