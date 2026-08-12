@@ -1,4 +1,4 @@
-import { BuildingState } from '../../domen/types/building-state';
+import { BuildingState } from '../../domain/types/building-state';
 import { BuildingStatePublisher } from '../ports/building-state.publisher';
 
 export class GetBuildingStateUseCase {

@@ -1,4 +1,4 @@
-import { Elevator } from '../../domen/entities/elevator';
+import { Elevator } from '../../domain/entities/elevator';
 
 export const ELEVATOR_REPOSITORY = Symbol('ELEVATOR_REPOSITORY');
 

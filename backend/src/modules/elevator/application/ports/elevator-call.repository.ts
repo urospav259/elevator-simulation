@@ -1,4 +1,4 @@
-import { ElevatorCall } from '../../domen/entities/elevator-call';
+import { ElevatorCall } from '../../domain/entities/elevator-call';
 
 export const ELEVATOR_CALL_REPOSITORY = Symbol('ELEVATOR_CALL_REPOSITORY');
 

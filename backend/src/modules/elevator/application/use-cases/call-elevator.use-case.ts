@@ -1,12 +1,12 @@
 import { randomUUID } from 'crypto';
 
-import { Direction } from '../../domen/types/direction';
-import { ElevatorCall } from '../../domen/entities/elevator-call';
+import { Direction } from '../../domain/types/direction';
+import { ElevatorCall } from '../../domain/entities/elevator-call';
 import { ElevatorRepository } from '../ports/elevator.repository';
 import { GetBuildingStateUseCase } from './get-building-state.use-case';
 import { BuildingStatePublisher } from '../ports/building-state.publisher';
-import { ElevatorAssignmentService } from '../../domen/utils/elevator-assignment.service';
-import { CallStatus } from '../../domen/types/call-status';
+import { ElevatorAssignmentService } from '../../domain/services/elevator-assignment.service';
+import { CallStatus } from '../../domain/types/call-status';
 
 export class CallElevatorsUseCase {
   constructor(
