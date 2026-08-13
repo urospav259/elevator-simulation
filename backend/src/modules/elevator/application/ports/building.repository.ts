@@ -6,4 +6,5 @@ export interface BuildingRepository {
   findById(id: string): Promise<Building | null>;
   list(): Promise<Building[]>;
   save(building: Building): Promise<void>;
+  listActiveBuildingIds(): Promise<string[]>;
 }

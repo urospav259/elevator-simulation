@@ -1,7 +1,7 @@
-import { Elevator } from '../entities/elevator';
+import { ElevatorSnapshot } from './elevator-snapshot';
 
 export type BuildingState = {
   buildingId: string;
   floors: number;
-  elevators: Elevator[];
+  elevators: ElevatorSnapshot[];
 };

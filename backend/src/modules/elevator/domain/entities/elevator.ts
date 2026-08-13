@@ -1,5 +1,7 @@
 import { Direction } from '../types/direction';
 import { DoorState } from '../types/door-state';
+import { ElevatorDisplayState } from '../types/elevator-display-state';
+import { ElevatorSnapshot } from '../types/elevator-snapshot';
 import { ElevatorCall } from './elevator-call';
 
 export class Elevator {
@@ -53,6 +55,30 @@ export class Elevator {
 
   getDoorState(): DoorState {
     return this.doorState;
+  }
+
+  getDisplayState(): ElevatorDisplayState {
+    if (this.doorState === DoorState.OPEN) {
+      return ElevatorDisplayState.DOOR_OPEN;
+    }
+
+    if (this.direction !== Direction.IDLE) {
+      return ElevatorDisplayState.MOVING;
+    }
+
+    return ElevatorDisplayState.IDLE;
+  }
+
+  toSnapshot(): ElevatorSnapshot {
+    return {
+      id: this.id,
+      buildingId: this.buildingId,
+      currentFloor: this.currentFloor,
+      direction: this.direction,
+      doorState: this.doorState,
+      displayState: this.getDisplayState(),
+      stops: this.stops,
+    };
   }
 
   get stops(): number[] {

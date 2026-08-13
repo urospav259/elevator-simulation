@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { BUILDING_REPOSITORY } from './application/ports/building.repository';
 import { BUILDING_STATE_PUBLISHER } from './application/ports/building-state.publisher';
@@ -7,6 +8,7 @@ import { ELEVATOR_CALL_REPOSITORY } from './application/ports/elevator-call.repo
 import { ELEVATOR_REPOSITORY } from './application/ports/elevator.repository';
 import { CallElevatorsUseCase } from './application/use-cases/call-elevator.use-case';
 import { CreateBuildingUseCase } from './application/use-cases/create-building.use-case';
+import { GetActiveBuildingIdsUseCase } from './application/use-cases/get-active-building-ids.use-case';
 import { GetBuildingStateUseCase } from './application/use-cases/get-building-state.use-case';
 import { GetBuildingUseCase } from './application/use-cases/get-building.use-case';
 import { MoveElevatorsUseCase } from './application/use-cases/move-elevators.use-case';
@@ -16,13 +18,14 @@ import { ElevatorTypeOrmModule } from './infrastructure/db/typeorm.module';
 import { PostgresBuildingRepository } from './infrastructure/db/postgres-building.repository';
 import { PostgresCallRepository } from './infrastructure/db/postgres-call.repository';
 import { PostgresElevatorRepository } from './infrastructure/db/postgres-elevator.repository';
+import { ElevatorSimulationTicker } from './infrastructure/simulation/elevator-simulation.ticker';
 import { NoopBuildingStatePublisher } from './infrastructure/simulation/noop-building-state.publisher';
 import { BuildingController } from './interface/controllers/building.controller';
 import { BuildingStateController } from './interface/controllers/building-state.controller';
 import { ElevatorCallController } from './interface/controllers/elevator-call.controller';
 
 @Module({
-  imports: [ElevatorTypeOrmModule],
+  imports: [ScheduleModule.forRoot(), ElevatorTypeOrmModule],
   controllers: [
     BuildingController,
     BuildingStateController,
@@ -34,6 +37,7 @@ import { ElevatorCallController } from './interface/controllers/elevator-call.co
     PostgresElevatorRepository,
     PostgresCallRepository,
     NoopBuildingStatePublisher,
+    ElevatorSimulationTicker,
     { provide: BUILDING_REPOSITORY, useExisting: PostgresBuildingRepository },
     {
       provide: BUILDING_STATE_REPOSITORY,
@@ -49,6 +53,12 @@ import { ElevatorCallController } from './interface/controllers/elevator-call.co
       provide: CreateBuildingUseCase,
       useFactory: (buildingRepository) =>
         new CreateBuildingUseCase(buildingRepository),
+      inject: [BUILDING_REPOSITORY],
+    },
+    {
+      provide: GetActiveBuildingIdsUseCase,
+      useFactory: (buildingRepository) =>
+        new GetActiveBuildingIdsUseCase(buildingRepository),
       inject: [BUILDING_REPOSITORY],
     },
     {

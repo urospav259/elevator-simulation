@@ -47,6 +47,16 @@ export class PostgresBuildingRepository
     return buildings.map((building) => this.toDomain(building));
   }
 
+  async listActiveBuildingIds(): Promise<string[]> {
+    const rows = await this.calls
+      .createQueryBuilder('elevatorCall')
+      .select('DISTINCT elevatorCall.buildingId', 'buildingId')
+      .where('elevatorCall.status = :status', { status: CallStatus.ASSIGNED })
+      .getRawMany<{ buildingId: string }>();
+
+    return rows.map((row) => row.buildingId);
+  }
+
   async save(building: Building): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       await manager.save(BuildingOrmEntity, {
@@ -89,7 +99,7 @@ export class PostgresBuildingRepository
       buildingId: building.id,
       floors: building.floorsCount,
       elevators: elevators.map((elevator) =>
-        this.elevatorToDomain(elevator, callsByElevator),
+        this.elevatorToDomain(elevator, callsByElevator).toSnapshot(),
       ),
     };
   }
