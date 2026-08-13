@@ -19,7 +19,7 @@ import { PostgresBuildingRepository } from './infrastructure/db/postgres-buildin
 import { PostgresCallRepository } from './infrastructure/db/postgres-call.repository';
 import { PostgresElevatorRepository } from './infrastructure/db/postgres-elevator.repository';
 import { ElevatorSimulationTicker } from './infrastructure/simulation/elevator-simulation.ticker';
-import { NoopBuildingStatePublisher } from './infrastructure/simulation/noop-building-state.publisher';
+import { SseBuildingStatePublisher } from './infrastructure/simulation/sse-building-state.publisher';
 import { BuildingController } from './interface/controllers/building.controller';
 import { BuildingStateController } from './interface/controllers/building-state.controller';
 import { ElevatorCallController } from './interface/controllers/elevator-call.controller';
@@ -36,7 +36,7 @@ import { ElevatorCallController } from './interface/controllers/elevator-call.co
     PostgresBuildingRepository,
     PostgresElevatorRepository,
     PostgresCallRepository,
-    NoopBuildingStatePublisher,
+    SseBuildingStatePublisher,
     ElevatorSimulationTicker,
     { provide: BUILDING_REPOSITORY, useExisting: PostgresBuildingRepository },
     {
@@ -47,7 +47,7 @@ import { ElevatorCallController } from './interface/controllers/elevator-call.co
     { provide: ELEVATOR_CALL_REPOSITORY, useExisting: PostgresCallRepository },
     {
       provide: BUILDING_STATE_PUBLISHER,
-      useExisting: NoopBuildingStatePublisher,
+      useExisting: SseBuildingStatePublisher,
     },
     {
       provide: CreateBuildingUseCase,
