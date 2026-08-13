@@ -146,7 +146,7 @@ export class Elevator {
 
     const arrivedFloor = this.currentFloor;
 
-    if (this.stops.includes(arrivedFloor)) {
+    if (this.hasStopAt(arrivedFloor)) {
       this.openDoor();
       const completedCalls = this.removeStop(arrivedFloor);
 
@@ -160,6 +160,12 @@ export class Elevator {
     }
 
     return [];
+  }
+
+  private hasStopAt(stop: number): boolean {
+    return this.assignedCalls.some(
+      (call) => call.getCurrentLocation() === stop,
+    );
   }
 
   private removeStop(stop: number): ElevatorCall[] {
