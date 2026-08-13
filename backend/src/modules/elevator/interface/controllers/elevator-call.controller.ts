@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseFilters } from '@nestjs/common';
 
-import { ElevatorCallDto } from '../../application/dto/elevator-call.dto';
-import { ElevatorDestinationDto } from '../../application/dto/elevator-destination.dto';
+import { ElevatorCallDto } from '../dto/elevator-call.dto';
+import { ElevatorDestinationDto } from '../dto/elevator-destination.dto';
 import { CallElevatorsUseCase } from '../../application/use-cases/call-elevator.use-case';
 import { PickDestinationUseCase } from '../../application/use-cases/pick-destination.use-case';
 import { HttpErrorFilter } from '../filters/http-error.filter';

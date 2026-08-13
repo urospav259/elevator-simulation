@@ -1,5 +1,5 @@
-export interface CreateBuildingPayload {
+export type CreateBuildingCommand = {
   name: string;
   floors: number;
   elevators: number;
-}
+};

@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 
 import { ElevatorCall } from '../../domain/entities/elevator-call';
 import { ElevatorAssignmentService } from '../../domain/services/elevator-assignment.service';
-import { ElevatorCallDto } from '../dto/elevator-call.dto';
+import { CallElevatorCommand } from '../commands/call-elevator.command';
 import { BuildingStatePublisher } from '../ports/building-state.publisher';
 import { ElevatorCallRepository } from '../ports/elevator-call.repository';
 import { ElevatorRepository } from '../ports/elevator.repository';
@@ -15,7 +15,7 @@ export class CallElevatorsUseCase {
     private readonly elevatorAssignmentService: ElevatorAssignmentService,
   ) {}
 
-  async execute(elevatorCallPayload: ElevatorCallDto): Promise<void> {
+  async execute(elevatorCallPayload: CallElevatorCommand): Promise<void> {
     const elevatorCall = new ElevatorCall(
       randomUUID(),
       elevatorCallPayload.buildingId,

@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 
 import { ElevatorCall } from '../../domain/entities/elevator-call';
 import { Direction } from '../../domain/types/direction';
-import { ElevatorDestinationDto } from '../dto/elevator-destination.dto';
+import { PickDestinationCommand } from '../commands/pick-destination.command';
 import { ElevatorCallRepository } from '../ports/elevator-call.repository';
 import { ElevatorRepository } from '../ports/elevator.repository';
 
@@ -12,7 +12,7 @@ export class PickDestinationUseCase {
     private readonly elevatorCallRepository: ElevatorCallRepository,
   ) {}
 
-  async execute({ elevatorId, floor }: ElevatorDestinationDto): Promise<void> {
+  async execute({ elevatorId, floor }: PickDestinationCommand): Promise<void> {
     const elevator = await this.elevators.findById(elevatorId);
 
     if (!elevator) {

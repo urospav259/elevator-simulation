@@ -4,13 +4,13 @@ import { Building } from '../../domain/entities/building';
 import { Elevator } from '../../domain/entities/elevator';
 import { Direction } from '../../domain/types/direction';
 import { DoorState } from '../../domain/types/door-state';
-import { CreateBuildingPayload } from '../dto/create-building-payload';
+import { CreateBuildingCommand } from '../commands/create-building.command';
 import { BuildingRepository } from '../ports/building.repository';
 
 export class CreateBuildingUseCase {
   constructor(private buildingRepository: BuildingRepository) {}
 
-  async execute(buildingPayload: CreateBuildingPayload): Promise<Building> {
+  async execute(buildingPayload: CreateBuildingCommand): Promise<Building> {
     const buildingId = randomUUID();
 
     const elevators = Array.from(
