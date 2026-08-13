@@ -22,6 +22,7 @@ export class PostgresCallRepository implements ElevatorCallRepository {
   async save(call: ElevatorCall): Promise<void> {
     await this.calls.save({
       id: call.getId(),
+      buildingId: call.getBuildingId(),
       floor: call.getCurrentLocation(),
       direction: call.getDirection(),
       status: call.getStatus(),
@@ -34,6 +35,7 @@ export class PostgresCallRepository implements ElevatorCallRepository {
   private toDomain(call: ElevatorCallOrmEntity): ElevatorCall {
     return ElevatorCall.restore({
       id: call.id,
+      buildingId: call.buildingId,
       floor: call.floor,
       direction: call.direction,
       status: call.status,

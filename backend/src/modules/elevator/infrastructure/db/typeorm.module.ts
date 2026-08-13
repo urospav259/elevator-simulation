@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ElevatorCallOrmEntity } from './typeorm/elevator-call.orm-entity';
-import { ElevatorOrmEntity } from './typeorm/elevator.orm-entity';
 import { CreateElevatorSchema20260812000000 } from './migrations/20260812000000-create-elevator-schema';
 import { SeedInitialElevators20260812000100 } from './migrations/20260812000100-seed-initial-elevators';
+import { BuildingOrmEntity } from './typeorm/building.orm-entity';
+import { ElevatorCallOrmEntity } from './typeorm/elevator-call.orm-entity';
+import { ElevatorOrmEntity } from './typeorm/elevator.orm-entity';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -18,7 +19,7 @@ const databaseUrl = process.env.DATABASE_URL;
       username: databaseUrl ? undefined : process.env.POSTGRES_USER ?? 'postgres',
       password: databaseUrl ? undefined : process.env.POSTGRES_PASSWORD ?? 'postgres',
       database: databaseUrl ? undefined : process.env.POSTGRES_DB ?? 'elevator_simulation',
-      entities: [ElevatorOrmEntity, ElevatorCallOrmEntity],
+      entities: [BuildingOrmEntity, ElevatorOrmEntity, ElevatorCallOrmEntity],
       migrations: [
         CreateElevatorSchema20260812000000,
         SeedInitialElevators20260812000100,
@@ -26,7 +27,11 @@ const databaseUrl = process.env.DATABASE_URL;
       synchronize: false,
       migrationsRun: false,
     }),
-    TypeOrmModule.forFeature([ElevatorOrmEntity, ElevatorCallOrmEntity]),
+    TypeOrmModule.forFeature([
+      BuildingOrmEntity,
+      ElevatorOrmEntity,
+      ElevatorCallOrmEntity,
+    ]),
   ],
   exports: [TypeOrmModule],
 })

@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { MoveElevatorsUseCase } from '../../application/use-cases/move-elevators.use-case';
-import { GetBuildingStateUseCase } from '../../application/use-cases/get-building-state.use-case';
+import { Body, Controller, Get, Param, Post, UseFilters } from '@nestjs/common';
 
+import { GetBuildingStateUseCase } from '../../application/use-cases/get-building-state.use-case';
+import { MoveElevatorsUseCase } from '../../application/use-cases/move-elevators.use-case';
+import { HttpErrorFilter } from '../filters/http-error.filter';
+
+@UseFilters(HttpErrorFilter)
 @Controller('building-state')
 export class BuildingStateController {
   constructor(

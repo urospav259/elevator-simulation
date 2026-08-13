@@ -21,23 +21,44 @@ export class CreateElevatorSchema20260812000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
+      CREATE TABLE buildings (
+        id uuid PRIMARY KEY,
+        name varchar(120) NOT NULL,
+        floors_count integer NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        CONSTRAINT chk_buildings_floors_count
+          CHECK (floors_count > 0 AND floors_count <= 30)
+      )
+    `);
+
+    await queryRunner.query(`
       CREATE TABLE elevators (
-        id varchar(64) PRIMARY KEY,
+        id uuid PRIMARY KEY,
+        building_id uuid NOT NULL,
         current_floor integer NOT NULL,
         direction elevator_direction NOT NULL DEFAULT 'IDLE',
-        door_state elevator_door_state NOT NULL DEFAULT 'CLOSED'
+        door_state elevator_door_state NOT NULL DEFAULT 'CLOSED',
+        CONSTRAINT fk_elevators_building
+          FOREIGN KEY (building_id)
+          REFERENCES buildings(id)
+          ON DELETE CASCADE
       )
     `);
 
     await queryRunner.query(`
       CREATE TABLE elevator_calls (
         id uuid PRIMARY KEY,
+        building_id uuid NOT NULL,
         floor integer NOT NULL,
         direction elevator_call_direction NOT NULL,
         status elevator_call_status,
-        assigned_elevator_id varchar(64),
+        assigned_elevator_id uuid,
         created_at timestamptz,
         finished_at timestamptz,
+        CONSTRAINT fk_elevator_calls_building
+          FOREIGN KEY (building_id)
+          REFERENCES buildings(id)
+          ON DELETE CASCADE,
         CONSTRAINT fk_elevator_calls_assigned_elevator
           FOREIGN KEY (assigned_elevator_id)
           REFERENCES elevators(id)
@@ -46,8 +67,13 @@ export class CreateElevatorSchema20260812000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      CREATE INDEX idx_elevator_calls_status
-      ON elevator_calls(status)
+      CREATE INDEX idx_elevators_building_id
+      ON elevators(building_id)
+    `);
+
+    await queryRunner.query(`
+      CREATE INDEX idx_elevator_calls_building_id_status
+      ON elevator_calls(building_id, status)
     `);
 
     await queryRunner.query(`
@@ -64,9 +90,11 @@ export class CreateElevatorSchema20260812000000 implements MigrationInterface {
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_created_at');
     await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_assigned_elevator_id');
-    await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_status');
+    await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_building_id_status');
+    await queryRunner.query('DROP INDEX IF EXISTS idx_elevators_building_id');
     await queryRunner.query('DROP TABLE IF EXISTS elevator_calls');
     await queryRunner.query('DROP TABLE IF EXISTS elevators');
+    await queryRunner.query('DROP TABLE IF EXISTS buildings');
     await queryRunner.query('DROP TYPE IF EXISTS elevator_call_status');
     await queryRunner.query('DROP TYPE IF EXISTS elevator_call_direction');
     await queryRunner.query('DROP TYPE IF EXISTS elevator_door_state');

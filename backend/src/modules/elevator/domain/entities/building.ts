@@ -3,16 +3,21 @@ import { Elevator } from './elevator';
 export class Building {
   constructor(
     private readonly id: string,
-    private numberOfFloors: number,
+    private readonly name: string,
+    private readonly numberOfFloors: number,
     private elevators: Elevator[],
   ) {
+    if (!name.trim()) {
+      throw new Error('Building name is required');
+    }
+
     if (
       numberOfFloors <= 0 ||
       !Number.isInteger(numberOfFloors) ||
-      numberOfFloors >= 30
+      numberOfFloors > 30
     ) {
       throw new Error(
-        'Number of floors must be greater than 0 and lower than 30',
+        'Number of floors must be greater than 0 and lower than or equal to 30',
       );
     }
 
@@ -25,6 +30,10 @@ export class Building {
 
   getId(): string {
     return this.id;
+  }
+
+  getName(): string {
+    return this.name;
   }
 
   getNumberOfFloors(): number {

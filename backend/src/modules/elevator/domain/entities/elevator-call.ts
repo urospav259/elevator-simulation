@@ -10,6 +10,7 @@ export class ElevatorCall {
 
   constructor(
     private readonly id: string,
+    private readonly buildingId: string,
     private readonly floor: number,
     private readonly direction: Exclude<Direction, Direction.IDLE>,
   ) {
@@ -19,6 +20,7 @@ export class ElevatorCall {
 
   static restore(params: {
     id: string;
+    buildingId: string;
     floor: number;
     direction: Exclude<Direction, Direction.IDLE>;
     status: CallStatus | null;
@@ -26,7 +28,12 @@ export class ElevatorCall {
     createdAt: Date | null;
     finishedAt: Date | null;
   }): ElevatorCall {
-    const call = new ElevatorCall(params.id, params.floor, params.direction);
+    const call = new ElevatorCall(
+      params.id,
+      params.buildingId,
+      params.floor,
+      params.direction,
+    );
 
     call.status = params.status;
     call.assignedElevatorId = params.assignedElevatorId;
@@ -36,7 +43,7 @@ export class ElevatorCall {
     return call;
   }
 
-  assignElevator(elevatorId: string) {
+  assignElevator(elevatorId: string): void {
     if (!this.createdAt) {
       this.createdAt = new Date();
     }
@@ -45,28 +52,32 @@ export class ElevatorCall {
     this.assignedElevatorId = elevatorId;
   }
 
-  finishElevatorCall() {
+  finishElevatorCall(): void {
     this.finishedAt = new Date();
     this.status = CallStatus.COMPLETED;
   }
 
-  public getId(): string {
+  getId(): string {
     return this.id;
   }
 
-  public getCurrentLocation(): number {
+  getBuildingId(): string {
+    return this.buildingId;
+  }
+
+  getCurrentLocation(): number {
     return this.floor;
   }
 
-  public getStatus(): CallStatus | null {
+  getStatus(): CallStatus | null {
     return this.status;
   }
 
-  public getAssignedElevatorId(): string | null {
+  getAssignedElevatorId(): string | null {
     return this.assignedElevatorId;
   }
 
-  public getDirection(): Direction {
+  getDirection(): Exclude<Direction, Direction.IDLE> {
     return this.direction;
   }
 }

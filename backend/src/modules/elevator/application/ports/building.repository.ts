@@ -1,5 +1,4 @@
 import { Building } from '../../domain/entities/building';
-import { CreateBuildingPayload } from '../dto/create-building-payload';
 
 export const BUILDING_REPOSITORY = Symbol('BUILDING_REPOSITORY');
 

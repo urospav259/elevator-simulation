@@ -10,25 +10,41 @@ export class Elevator {
     private currentFloor: number,
     private direction: Direction,
     private doorState: DoorState,
-    private buildingId: string,
+    private readonly buildingId: string,
+    assignedCalls: ElevatorCall[] = [],
   ) {
-    this.assignedCalls = [];
+    this.assignedCalls = assignedCalls;
   }
 
-  addStop(call: ElevatorCall) {
+  addStop(call: ElevatorCall): void {
+    if (call.getCurrentLocation() === this.currentFloor) {
+      this.openDoor();
+      call.finishElevatorCall();
+      return;
+    }
+
     this.assignedCalls.push(call);
+
+    if (this.direction === Direction.IDLE) {
+      this.direction = this.getDirectionToFloor(call.getCurrentLocation());
+    }
   }
 
-  resetStops() {
+  resetStops(): void {
     this.assignedCalls = [];
+    this.direction = Direction.IDLE;
   }
 
-  getAssignedCalls() {
+  getAssignedCalls(): ElevatorCall[] {
     return this.assignedCalls;
   }
 
   getId(): string {
     return this.id;
+  }
+
+  getBuildingId(): string {
+    return this.buildingId;
   }
 
   getDirection(): Direction {
@@ -48,7 +64,7 @@ export class Elevator {
       call.getCurrentLocation(),
     );
 
-    return this.getOrderedStops(allStops);
+    return this.getOrderedStops([...new Set(allStops)]);
   }
 
   private getOrderedStops(stops: number[]): number[] {
@@ -89,34 +105,64 @@ export class Elevator {
     this.setCurrentFloor(this.currentFloor - 1);
   }
 
-  public moveToNextStop() {
+  moveToNextStop(): ElevatorCall[] {
     if (this.stops.length === 0 || this.direction === Direction.IDLE) {
-      return;
+      return [];
     }
 
-    const currentStop = this.currentFloor;
+    this.closeDoor();
 
     if (this.direction === Direction.UP) {
       this.moveToUpperFloor();
     } else {
-      return this.moveToLowerFloor();
+      this.moveToLowerFloor();
     }
 
-    if (this.stops.includes(currentStop)) {
+    const arrivedFloor = this.currentFloor;
+
+    if (this.stops.includes(arrivedFloor)) {
       this.openDoor();
+      const completedCalls = this.removeStop(arrivedFloor);
+
+      if (this.assignedCalls.length === 0) {
+        this.direction = Direction.IDLE;
+        return completedCalls;
+      }
+
+      this.direction = this.getDirectionToFloor(this.stops[0]);
+      return completedCalls;
     }
 
-    this.removeStop(currentStop);
+    return [];
   }
 
-  private removeStop(stop: number) {
-    this.assignedCalls.filter((call) => call.getCurrentLocation() === stop);
-    if (this.assignedCalls.length === 0) {
-      this.direction = Direction.IDLE;
+  private removeStop(stop: number): ElevatorCall[] {
+    const completedCalls = this.assignedCalls.filter(
+      (call) => call.getCurrentLocation() === stop,
+    );
+
+    completedCalls.forEach((call) => call.finishElevatorCall());
+
+    this.assignedCalls = this.assignedCalls.filter(
+      (call) => call.getCurrentLocation() !== stop,
+    );
+
+    return completedCalls;
+  }
+
+  private getDirectionToFloor(floor: number): Direction {
+    if (floor > this.currentFloor) {
+      return Direction.UP;
     }
+
+    if (floor < this.currentFloor) {
+      return Direction.DOWN;
+    }
+
+    return Direction.IDLE;
   }
 
-  finishWaiting() {
+  finishWaiting(): void {
     this.closeDoor();
   }
 }

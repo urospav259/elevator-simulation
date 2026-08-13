@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { CallStatus } from '../../../domain/types/call-status';
 import { Direction } from '../../../domain/types/direction';
+import { BuildingOrmEntity } from './building.orm-entity';
 import { ElevatorOrmEntity } from './elevator.orm-entity';
 
 @Entity('elevator_calls')
@@ -9,12 +10,19 @@ export class ElevatorCallOrmEntity {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
+  @Column({ name: 'building_id', type: 'uuid' })
+  buildingId: string;
+
+  @ManyToOne(() => BuildingOrmEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'building_id' })
+  building: BuildingOrmEntity;
+
   @Column({ type: 'integer' })
   floor: number;
 
   @Column({
     type: 'enum',
-    enum: Direction,
+    enum: [Direction.UP, Direction.DOWN],
     enumName: 'elevator_call_direction',
   })
   direction: Exclude<Direction, Direction.IDLE>;
@@ -27,7 +35,7 @@ export class ElevatorCallOrmEntity {
   })
   status: CallStatus | null;
 
-  @Column({ name: 'assigned_elevator_id', type: 'varchar', length: 64, nullable: true })
+  @Column({ name: 'assigned_elevator_id', type: 'uuid', nullable: true })
   assignedElevatorId: string | null;
 
   @ManyToOne(() => ElevatorOrmEntity, (elevator) => elevator.calls, {

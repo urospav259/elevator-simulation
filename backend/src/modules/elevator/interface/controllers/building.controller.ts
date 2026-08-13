@@ -1,21 +1,25 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { GetBuildingUseCase } from '../../application/use-cases/get-building.use-case';
-import { MoveElevatorsUseCase } from '../../application/use-cases/move-elevators.use-case';
+import { Body, Controller, Get, Post, UseFilters } from '@nestjs/common';
 
-@Controller('building')
+import { CreateBuildingPayload } from '../../application/dto/create-building-payload';
+import { CreateBuildingUseCase } from '../../application/use-cases/create-building.use-case';
+import { GetBuildingUseCase } from '../../application/use-cases/get-building.use-case';
+import { HttpErrorFilter } from '../filters/http-error.filter';
+
+@UseFilters(HttpErrorFilter)
+@Controller('buildings')
 export class BuildingController {
   constructor(
     private readonly getBuilding: GetBuildingUseCase,
-    private readonly moveElevators: MoveElevatorsUseCase,
+    private readonly createBuilding: CreateBuildingUseCase,
   ) {}
 
   @Get()
-  getState() {
+  list() {
     return this.getBuilding.execute();
   }
 
-  @Post('tick')
-  moveElevatorsTick(@Body('buildingId') buildingId: string) {
-    return this.moveElevators.execute(buildingId);
+  @Post()
+  create(@Body() body: CreateBuildingPayload) {
+    return this.createBuilding.execute(body);
   }
 }
