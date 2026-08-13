@@ -1,6 +1,7 @@
 import { Elevator } from '../entities/elevator';
 
 export type BuildingState = {
-  floors: number;
+  floors?: number;
   elevators: Elevator[];
+  buildingId: string;
 };

@@ -1,21 +1,21 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { GetBuildingUseCase } from '../../application/use-cases/get-building.use-case';
 import { MoveElevatorsUseCase } from '../../application/use-cases/move-elevators.use-case';
-import { GetBuildingStateUseCase } from '../../application/use-cases/get-building-state.use-case';
 
 @Controller('building')
 export class BuildingController {
   constructor(
-    private readonly getBuildingState: GetBuildingStateUseCase,
+    private readonly getBuilding: GetBuildingUseCase,
     private readonly moveElevators: MoveElevatorsUseCase,
   ) {}
 
   @Get()
   getState() {
-    return this.getBuildingState.execute();
+    return this.getBuilding.execute();
   }
 
   @Post('tick')
-  moveElevatorsTick() {
-    return this.moveElevators.execute();
+  moveElevatorsTick(@Body('buildingId') buildingId: string) {
+    return this.moveElevators.execute(buildingId);
   }
 }

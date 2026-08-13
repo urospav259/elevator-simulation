@@ -9,19 +9,16 @@ export class MoveElevatorsUseCase {
     private readonly publisher: BuildingStatePublisher,
   ) {}
 
-  async execute(): Promise<void> {
+  async execute(buildingId: string): Promise<void> {
     try {
-      const elevators = await this.elevators.list();
+      const elevators = await this.elevators.list(buildingId);
 
       // just move elevators to their new positions, if it is needed
       elevators
         .filter((elevator) => elevator.getAssignedCalls().length > 0)
         .forEach((elevator) => elevator.moveToNextStop());
 
-      this.publisher.publish({
-        elevators,
-        floors: 10,
-      });
+      this.publisher.publish({ elevators, buildingId });
     } catch (error: Error | any) {
       // handle error
     }

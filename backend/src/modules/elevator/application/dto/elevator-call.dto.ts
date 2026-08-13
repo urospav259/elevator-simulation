@@ -1,6 +1,7 @@
 import { Direction } from '../../domain/types/direction';
 
-export class ElevatorCallDto {
+export interface ElevatorCallDto {
+  buildingId: string;
   floor: number;
   direction: Exclude<Direction, Direction.IDLE>;
 }

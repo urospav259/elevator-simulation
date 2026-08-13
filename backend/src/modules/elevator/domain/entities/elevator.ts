@@ -10,6 +10,7 @@ export class Elevator {
     private currentFloor: number,
     private direction: Direction,
     private doorState: DoorState,
+    private buildingId: string,
   ) {
     this.assignedCalls = [];
   }

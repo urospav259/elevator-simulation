@@ -1,7 +1,13 @@
-import { BuildingState } from '../../domain/types/building-state';
+import { Elevator } from '../../domain/entities/elevator';
 
 export const BUILDING_STATE_PUBLISHER = Symbol('BUILDING_STATE_PUBLISHER');
 
 export interface BuildingStatePublisher {
-  publish(state: BuildingState): Promise<void>;
+  publish({
+    elevators,
+    buildingId,
+  }: {
+    elevators: Elevator[];
+    buildingId: string;
+  }): Promise<void>;
 }
