@@ -1,99 +1,242 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Elevator Simulation Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS backend for an elevator simulation app. The application stores buildings, elevators, and elevator calls in PostgreSQL, moves elevators through a backend scheduler, and streams the current building state to clients through SSE.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## What The Application Does
 
-## Description
+- Creates buildings with configurable floor and elevator counts.
+- Stores buildings, elevators, and elevator calls in PostgreSQL.
+- Assigns the optimal elevator for a call based on the current floor, movement direction, and existing stops.
+- Allows a passenger to choose a destination once they are inside an elevator.
+- Runs a backend simulation tick every 15 seconds for active buildings.
+- Publishes state changes through a Server-Sent Events endpoint.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technologies
 
-## Project setup
+- NestJS
+- TypeScript
+- TypeORM
+- PostgreSQL
+- RxJS / SSE
+- Jest
 
-```bash
-$ npm install
+## Architecture
+
+The elevator module follows Clean Architecture principles:
+
+- `domain/` contains business rules: entities, domain services, types, and errors.
+- `application/` contains use cases and ports, without depending on NestJS, TypeORM, or HTTP details.
+- `interface/` contains controllers, DTO validation, and the HTTP error filter.
+- `infrastructure/` contains TypeORM models, PostgreSQL repositories, migrations, and the simulation ticker.
+
+This is why the project has separate domain classes and TypeORM ORM entity classes. Domain classes keep the business logic, while ORM entities describe how data is stored in the database.
+
+## Environment
+
+The backend reads the database connection from `DATABASE_URL`, or from individual PostgreSQL environment variables.
+
+Minimal `.env` example:
+
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/elevator_simulation
 ```
 
-## Compile and run the project
+Alternative configuration:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```env
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=elevator_simulation
+POSTGRES_MAINTENANCE_DB=postgres
 ```
 
-## Run tests
+`POSTGRES_MAINTENANCE_DB` is only used when creating the database if it does not already exist.
+
+## Installation
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+## Database And Migrations
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Before starting the application, make sure a PostgreSQL server is running locally or that `DATABASE_URL` points to an available PostgreSQL instance.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Run the full database setup:
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+npm run db:setup
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This command creates the database if it does not exist, then runs the migrations. The current migrations create the schema and seed one default building with three elevators.
 
-## Resources
+Run only the migrations:
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run migration:run
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Revert the latest migration:
 
-## Support
+```bash
+npm run migration:revert
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Running The Application
 
-## Stay in touch
+Development mode:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start:dev
+```
 
-## License
+Standard start:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+npm run start
+```
+
+Production build and start:
+
+```bash
+npm run build
+npm run start:prod
+```
+
+By default, the application runs on `http://localhost:3000`.
+
+## Tests
+
+```bash
+npm run test
+```
+
+Watch mode:
+
+```bash
+npm run test:watch
+```
+
+Coverage:
+
+```bash
+npm run test:cov
+```
+
+## API Endpoints
+
+### Buildings
+
+List buildings:
+
+```http
+GET /buildings
+```
+
+Create a building:
+
+```http
+POST /buildings
+Content-Type: application/json
+
+{
+  "name": "Office Tower",
+  "floors": 10,
+  "elevators": 3
+}
+```
+
+Validation currently limits a building to 1-30 floors and 1-10 elevators.
+
+### Building State
+
+Get the current building state:
+
+```http
+GET /building-state/:buildingId
+```
+
+Run a manual simulation tick for a building:
+
+```http
+POST /building-state/tick
+Content-Type: application/json
+
+{
+  "buildingId": "00000000-0000-4000-8000-000000000001"
+}
+```
+
+Stream live building state:
+
+```http
+GET /building-state/:buildingId/events
+```
+
+This is an SSE endpoint. The frontend connects through `EventSource`; the backend sends the initial state immediately and then streams new state events whenever the state changes.
+
+Frontend connection example:
+
+```ts
+const events = new EventSource(
+  'http://localhost:3000/building-state/00000000-0000-4000-8000-000000000001/events',
+);
+
+events.addEventListener('building-state', (event) => {
+  const state = JSON.parse(event.data);
+  console.log(state);
+});
+
+// Close the subscription when the user switches buildings or leaves the screen.
+events.close();
+```
+
+### Elevator Calls
+
+Call an elevator from a floor:
+
+```http
+POST /elevator-calls
+Content-Type: application/json
+
+{
+  "buildingId": "00000000-0000-4000-8000-000000000001",
+  "floor": 4,
+  "direction": "UP"
+}
+```
+
+Choose a destination from inside an elevator:
+
+```http
+POST /elevator-calls/pick-destination
+Content-Type: application/json
+
+{
+  "elevatorId": "10000000-0000-4000-8000-000000000001",
+  "floor": 8
+}
+```
+
+## Simulation
+
+The backend uses `@nestjs/schedule` and `ElevatorSimulationTicker`. The ticker runs every 15 seconds and moves only active buildings, meaning buildings that currently have assigned elevator calls.
+
+This keeps the simulation state backend-driven. If multiple clients follow the same building, they all receive the same state through SSE.
+
+## Error Handling
+
+HTTP controllers use `HttpErrorFilter`. Domain and application layers throw regular errors for invalid states, and the filter maps them to HTTP responses:
+
+- `404` for errors that indicate an entity was not found.
+- `400` for other validation and business-rule errors.
+
+DTO validation is handled at the HTTP boundary through NestJS `ValidationPipe`, while domain entities still protect core business invariants.
+
+## Notes
+
+- TypeORM `synchronize` is disabled. Database schema changes are handled through migrations.
+- The application layer depends on ports, while concrete PostgreSQL implementations are wired in `elevator.module.ts`.
+- Completed elevator calls remain in the database for audit/debug purposes. They can later be archived or removed through a cleanup job if needed.
