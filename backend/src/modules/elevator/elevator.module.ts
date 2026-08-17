@@ -110,9 +110,17 @@ import { ElevatorCallController } from './interface/controllers/elevator-call.co
     },
     {
       provide: PickDestinationUseCase,
-      useFactory: (elevatorRepository, elevatorCallRepository) =>
-        new PickDestinationUseCase(elevatorRepository, elevatorCallRepository),
-      inject: [ELEVATOR_REPOSITORY, ELEVATOR_CALL_REPOSITORY],
+      useFactory: (elevatorRepository, elevatorCallRepository, publisher) =>
+        new PickDestinationUseCase(
+          elevatorRepository,
+          elevatorCallRepository,
+          publisher,
+        ),
+      inject: [
+        ELEVATOR_REPOSITORY,
+        ELEVATOR_CALL_REPOSITORY,
+        BUILDING_STATE_PUBLISHER,
+      ],
     },
   ],
 })

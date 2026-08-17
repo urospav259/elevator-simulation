@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { ElevatorCall } from '../../domain/entities/elevator-call';
 import { Direction } from '../../domain/types/direction';
 import { PickDestinationCommand } from '../commands/pick-destination.command';
+import { BuildingStatePublisher } from '../ports/building-state.publisher';
 import { ElevatorCallRepository } from '../ports/elevator-call.repository';
 import { ElevatorRepository } from '../ports/elevator.repository';
 
@@ -10,6 +11,7 @@ export class PickDestinationUseCase {
   constructor(
     private readonly elevators: ElevatorRepository,
     private readonly elevatorCallRepository: ElevatorCallRepository,
+    private readonly buildingStatePublisher: BuildingStatePublisher,
   ) {}
 
   async execute({ elevatorId, floor }: PickDestinationCommand): Promise<void> {
@@ -22,6 +24,10 @@ export class PickDestinationUseCase {
     if (elevator.getCurrentFloor() === floor) {
       elevator.openDoor();
       await this.elevators.save(elevator);
+      await this.buildingStatePublisher.publish({
+        buildingId: elevator.getBuildingId(),
+        elevators: [elevator],
+      });
       return;
     }
 
@@ -40,5 +46,9 @@ export class PickDestinationUseCase {
 
     await this.elevatorCallRepository.save(elevatorCall);
     await this.elevators.save(elevator);
+    await this.buildingStatePublisher.publish({
+      buildingId: elevator.getBuildingId(),
+      elevators: [elevator],
+    });
   }
 }

@@ -63,3 +63,8 @@ export type CallElevatorPayload = {
   floor: number;
   direction: CallDirection;
 };
+
+export type PickDestinationPayload = {
+  elevatorId: string;
+  floor: number;
+};

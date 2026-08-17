@@ -7,6 +7,7 @@ import type {
   BuildingStateEvent,
   CallElevatorPayload,
   CreateBuildingPayload,
+  PickDestinationPayload,
 } from "@/types/elevator";
 
 export const API_BASE_URL =
@@ -16,6 +17,7 @@ export const API_BASE_URL =
 export const API_ENDPOINTS = {
   BUILDINGS: "/buildings",
   ELEVATOR_CALLS: "/elevator-calls",
+  PICK_DESTINATION: "/elevator-calls/pick-destination",
   BUILDING_STATE_EVENTS: (buildingId: string) =>
     `/building-state/${buildingId}/events`,
 } as const;
@@ -113,6 +115,15 @@ export async function createBuilding(
 export async function callElevator(payload: CallElevatorPayload): Promise<void> {
   await api.post<void, CallElevatorPayload>(
     API_ENDPOINTS.ELEVATOR_CALLS,
+    payload,
+  );
+}
+
+export async function pickDestination(
+  payload: PickDestinationPayload,
+): Promise<void> {
+  await api.post<void, PickDestinationPayload>(
+    API_ENDPOINTS.PICK_DESTINATION,
     payload,
   );
 }

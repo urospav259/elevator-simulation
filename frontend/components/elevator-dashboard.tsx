@@ -5,11 +5,17 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { BuildingManagement } from "@/components/building-management";
 import { ElevatorSimulationPanel } from "@/components/elevator-simulation-panel";
 import {
+  PassengerPovPanel,
+  type PassengerSession,
+} from "@/components/passenger-pov-panel";
+import {
   callElevator as callElevatorRequest,
   createBuilding as createBuildingRequest,
   getErrorMessage,
+  pickDestination as pickDestinationRequest,
   subscribeToBuildingState,
 } from "@/lib/elevator-api";
+import { DoorState } from "@/types/elevator";
 import type {
   Building,
   BuildingState,
@@ -43,6 +49,10 @@ export function ElevatorDashboard({
   const [form, setForm] = useState<CreateBuildingPayload>(DEFAULT_FORM);
   const [isCreating, setIsCreating] = useState(false);
   const [pendingCall, setPendingCall] = useState<string | null>(null);
+  const [pendingDestination, setPendingDestination] = useState(false);
+  const [passengerFloor, setPassengerFloor] = useState(1);
+  const [passengerSession, setPassengerSession] =
+    useState<PassengerSession | null>(null);
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [streamStatus, setStreamStatus] = useState<"idle" | "open" | "error">(
     "idle",
@@ -52,15 +62,28 @@ export function ElevatorDashboard({
     () => buildings.find((building) => building.id === selectedBuildingId),
     [buildings, selectedBuildingId],
   );
+  const arrivedElevator = useMemo(() => {
+    if (!passengerSession || passengerSession.destinationFloor) {
+      return undefined;
+    }
+
+    return buildingState?.elevators.find(
+      (elevator) =>
+        elevator.currentFloor === passengerSession.floor &&
+        elevator.doorState === DoorState.OPEN,
+    );
+  }, [buildingState?.elevators, passengerSession]);
 
   useEffect(() => {
     if (!selectedBuildingId) {
       setBuildingState(null);
+      setPassengerSession(null);
       setStreamStatus("idle");
       return;
     }
 
     setBuildingState(null);
+    setPassengerSession(null);
     setStreamStatus("idle");
 
     const unsubscribe = subscribeToBuildingState(selectedBuildingId, {
@@ -109,9 +132,12 @@ export function ElevatorDashboard({
     }
   }
 
-  async function callElevator(floor: number, direction: CallDirection) {
+  async function callElevator(
+    floor: number,
+    direction: CallDirection,
+  ): Promise<boolean> {
     if (!selectedBuildingId) {
-      return;
+      return false;
     }
 
     const callKey = `${floor}-${direction}`;
@@ -124,12 +150,76 @@ export function ElevatorDashboard({
         floor,
         direction,
       });
+      return true;
     } catch (callError) {
       setError(getErrorMessage(callError));
+      return false;
     } finally {
       setPendingCall(null);
     }
   }
+
+  async function callElevatorFromPassengerPov(
+    floor: number,
+    direction: CallDirection,
+  ) {
+    const wasCalled = await callElevator(floor, direction);
+
+    if (wasCalled) {
+      setPassengerSession({ floor, direction });
+    }
+  }
+
+  async function pickDestination(elevatorId: string, floor: number) {
+    setPendingDestination(true);
+    setError(null);
+
+    try {
+      await pickDestinationRequest({ elevatorId, floor });
+      setPassengerSession((current) =>
+        current ? { ...current, elevatorId, destinationFloor: floor } : current,
+      );
+    } catch (destinationError) {
+      setError(getErrorMessage(destinationError));
+    } finally {
+      setPendingDestination(false);
+    }
+  }
+
+  function updatePassengerFloor(floor: number) {
+    const floorsCount =
+      buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 1;
+    const nextFloor = Math.min(Math.max(floor, 1), floorsCount);
+
+    setPassengerFloor(Number.isNaN(nextFloor) ? 1 : nextFloor);
+  }
+
+  useEffect(() => {
+    const floorsCount =
+      buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 1;
+
+    setPassengerFloor((currentFloor) =>
+      Math.min(Math.max(currentFloor, 1), floorsCount),
+    );
+  }, [buildingState?.floors, selectedBuilding?.numberOfFloors]);
+
+  useEffect(() => {
+    if (!passengerSession?.elevatorId || !passengerSession.destinationFloor) {
+      return;
+    }
+
+    const passengerElevator = buildingState?.elevators.find(
+      (elevator) => elevator.id === passengerSession.elevatorId,
+    );
+
+    if (
+      passengerElevator?.currentFloor === passengerSession.destinationFloor &&
+      passengerElevator.doorState === DoorState.OPEN
+    ) {
+      setPassengerSession(null);
+      setPassengerFloor(passengerSession.destinationFloor);
+    }
+  }, [buildingState?.elevators, passengerSession]);
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#17202a]">
@@ -173,6 +263,20 @@ export function ElevatorDashboard({
             {error}
           </div>
         ) : null}
+
+        <PassengerPovPanel
+          selectedBuilding={selectedBuilding}
+          buildingState={buildingState}
+          passengerFloor={passengerFloor}
+          passengerSession={passengerSession}
+          pendingCall={pendingCall}
+          pendingDestination={pendingDestination}
+          arrivedElevator={arrivedElevator}
+          onPassengerFloorChange={updatePassengerFloor}
+          onCallElevator={callElevatorFromPassengerPov}
+          onPickDestination={pickDestination}
+          onResetPassengerSession={() => setPassengerSession(null)}
+        />
 
         <section className="grid gap-6 lg:grid-cols-[340px_1fr]">
           <BuildingManagement
