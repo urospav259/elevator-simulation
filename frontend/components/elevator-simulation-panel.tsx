@@ -17,6 +17,14 @@ type ElevatorSimulationPanelProps = {
   onCallElevator: (floor: number, direction: CallDirection) => void;
 };
 
+type FloorCallControlsProps = {
+  floor: number;
+  floorsCount: number;
+  pendingCall: string | null;
+  placement: "left" | "right";
+  onCallElevator: (floor: number, direction: CallDirection) => void;
+};
+
 function getDirectionLabel(direction: Direction): string {
   if (direction === "UP") {
     return "Up";
@@ -53,6 +61,39 @@ function directionSymbol(direction: Direction): string {
   return "-";
 }
 
+function FloorCallControls({
+  floor,
+  floorsCount,
+  pendingCall,
+  placement,
+  onCallElevator,
+}: FloorCallControlsProps) {
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      <button
+        type="button"
+        disabled={floor === floorsCount || pendingCall === `${floor}-UP`}
+        onClick={() => onCallElevator(floor, "UP")}
+        className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
+        aria-label={`Call elevator up from floor ${floor} using ${placement} controls`}
+        title="Call up"
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        disabled={floor === 1 || pendingCall === `${floor}-DOWN`}
+        onClick={() => onCallElevator(floor, "DOWN")}
+        className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
+        aria-label={`Call elevator down from floor ${floor} using ${placement} controls`}
+        title="Call down"
+      >
+        ↓
+      </button>
+    </div>
+  );
+}
+
 export function ElevatorSimulationPanel({
   selectedBuilding,
   buildingState,
@@ -60,12 +101,13 @@ export function ElevatorSimulationPanel({
   onCallElevator,
 }: ElevatorSimulationPanelProps) {
   const elevators = buildingState?.elevators ?? [];
-  const floorsCount = buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 0;
+  const floorsCount =
+    buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 0;
   const floors = useMemo(
     () => Array.from({ length: floorsCount }, (_, index) => floorsCount - index),
     [floorsCount],
   );
-  const gridTemplateColumns = `88px repeat(${Math.max(elevators.length, 1)}, minmax(86px, 1fr)) 116px`;
+  const gridTemplateColumns = `116px 72px repeat(${Math.max(elevators.length, 1)}, minmax(96px, 1fr)) 116px`;
 
   if (!selectedBuilding) {
     return (
@@ -99,121 +141,94 @@ export function ElevatorSimulationPanel({
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1fr_280px]">
-          <div className="overflow-hidden rounded-lg border border-[#d9dee5] bg-white shadow-sm">
+        <div className="rounded-lg border border-[#d9dee5] bg-white shadow-sm">
+          <div className="max-h-[680px] overflow-auto">
             <div
-              className="grid min-w-[720px] border-b border-[#d9dee5] bg-[#f2f5f8] px-4 py-3 text-xs font-semibold uppercase text-[#53616f]"
+              className="sticky top-0 z-30 grid min-w-[860px] border-b border-[#d9dee5] bg-[#f2f5f8] px-4 py-3 text-xs font-semibold uppercase text-[#53616f]"
               style={{ gridTemplateColumns }}
             >
-              <span>Floor</span>
+              <span className="sticky left-0 z-40 bg-[#f2f5f8] text-center">
+                Call
+              </span>
+              <span className="bg-[#f2f5f8]">Floor</span>
               {elevators.map((elevator, index) => (
                 <span key={elevator.id}>Elevator {index + 1}</span>
               ))}
-              <span>Call</span>
+              <span className="sticky right-0 z-40 bg-[#f2f5f8] text-center">
+                Call
+              </span>
             </div>
 
-            <div className="max-h-[680px] overflow-auto">
-              {floors.map((floor) => (
-                <div
-                  key={floor}
-                  className="grid min-w-[720px] items-center border-b border-[#edf0f3] px-4 py-2 last:border-b-0"
-                  style={{ gridTemplateColumns }}
-                >
-                  <div className="text-sm font-semibold text-[#17202a]">
-                    {floor}
-                  </div>
-
-                  {elevators.map((elevator) => {
-                    const isHere = elevator.currentFloor === floor;
-                    const isStop = elevator.stops.includes(floor);
-
-                    return (
-                      <div
-                        key={elevator.id}
-                        className="flex h-10 items-center justify-center"
-                      >
-                        {isHere ? (
-                          <div
-                            className={`flex h-8 min-w-14 items-center justify-center rounded-md px-2 text-sm font-bold text-white ${
-                              elevator.displayState === "DOOR_OPEN"
-                                ? "bg-[#178b5b]"
-                                : elevator.displayState === "MOVING"
-                                  ? "bg-[#2067a8]"
-                                  : "bg-[#5f6b77]"
-                            }`}
-                            title={`${getDisplayLabel(elevator.displayState)} · ${getDirectionLabel(elevator.direction)}`}
-                          >
-                            {directionSymbol(elevator.direction)}
-                          </div>
-                        ) : isStop ? (
-                          <div className="h-2.5 w-2.5 rounded-full bg-[#d08b16]" />
-                        ) : (
-                          <div className="h-px w-8 bg-[#d9dee5]" />
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      disabled={floor === floorsCount || pendingCall === `${floor}-UP`}
-                      onClick={() => onCallElevator(floor, "UP")}
-                      className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
-                      aria-label={`Call elevator up from floor ${floor}`}
-                      title="Call up"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      disabled={floor === 1 || pendingCall === `${floor}-DOWN`}
-                      onClick={() => onCallElevator(floor, "DOWN")}
-                      className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
-                      aria-label={`Call elevator down from floor ${floor}`}
-                      title="Call down"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <aside className="grid content-start gap-3">
-            {elevators.map((elevator, index) => (
+            {floors.map((floor) => (
               <div
-                key={elevator.id}
-                className="rounded-lg border border-[#d9dee5] bg-white p-4 shadow-sm"
+                key={floor}
+                className="grid min-w-[860px] items-center border-b border-[#edf0f3] px-4 py-2 last:border-b-0"
+                style={{ gridTemplateColumns }}
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-[#17202a]">
-                    Elevator {index + 1}
-                  </h3>
-                  <span className="text-lg font-bold text-[#2067a8]">
-                    {directionSymbol(elevator.direction)}
-                  </span>
+                <div className="sticky left-0 z-20 bg-white py-1 pr-3 shadow-[8px_0_12px_-12px_rgba(23,32,42,0.65)]">
+                  <FloorCallControls
+                    floor={floor}
+                    floorsCount={floorsCount}
+                    pendingCall={pendingCall}
+                    placement="left"
+                    onCallElevator={onCallElevator}
+                  />
                 </div>
-                <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-md bg-[#f2f5f8] px-3 py-2">
-                    <dt className="text-xs text-[#697786]">Floor</dt>
-                    <dd className="font-semibold">{elevator.currentFloor}</dd>
-                  </div>
-                  <div className="rounded-md bg-[#f2f5f8] px-3 py-2">
-                    <dt className="text-xs text-[#697786]">Door</dt>
-                    <dd className="font-semibold">{elevator.doorState}</dd>
-                  </div>
-                  <div className="col-span-2 rounded-md bg-[#f2f5f8] px-3 py-2">
-                    <dt className="text-xs text-[#697786]">Stops</dt>
-                    <dd className="font-semibold">
-                      {elevator.stops.length > 0 ? elevator.stops.join(", ") : "None"}
-                    </dd>
-                  </div>
-                </dl>
+
+                <div className="text-sm font-semibold text-[#17202a]">
+                  {floor}
+                </div>
+
+                {elevators.map((elevator) => {
+                  const isHere = elevator.currentFloor === floor;
+                  const stopOrder = elevator.stops.indexOf(floor) + 1;
+                  const isStop = stopOrder > 0;
+
+                  return (
+                    <div
+                      key={elevator.id}
+                      className="flex h-10 items-center justify-center"
+                    >
+                      {isHere ? (
+                        <div
+                          className={`flex h-8 min-w-14 items-center justify-center rounded-md px-2 text-sm font-bold text-white ${
+                            elevator.displayState === "DOOR_OPEN"
+                              ? "bg-[#178b5b]"
+                              : elevator.displayState === "MOVING"
+                                ? "bg-[#2067a8]"
+                                : "bg-[#5f6b77]"
+                          }`}
+                          title={`${getDisplayLabel(elevator.displayState)} · ${getDirectionLabel(elevator.direction)}`}
+                        >
+                          {directionSymbol(elevator.direction)}
+                        </div>
+                      ) : isStop ? (
+                        <div
+                          className="flex items-center gap-1 rounded-md bg-[#fff3d8] px-2 py-1 text-xs font-semibold text-[#8a5a00]"
+                          title={`Stop ${stopOrder} for this elevator`}
+                        >
+                          <span className="h-2 w-2 rounded-full bg-[#d08b16]" />
+                          {stopOrder}
+                        </div>
+                      ) : (
+                        <div className="h-px w-8 bg-[#d9dee5]" />
+                      )}
+                    </div>
+                  );
+                })}
+
+                <div className="sticky right-0 z-20 bg-white py-1 pl-3 shadow-[-8px_0_12px_-12px_rgba(23,32,42,0.65)]">
+                  <FloorCallControls
+                    floor={floor}
+                    floorsCount={floorsCount}
+                    pendingCall={pendingCall}
+                    placement="right"
+                    onCallElevator={onCallElevator}
+                  />
+                </div>
               </div>
             ))}
-          </aside>
+          </div>
         </div>
       </div>
     </section>

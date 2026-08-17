@@ -96,11 +96,11 @@ export class Elevator {
   private getOrderedStops(stops: number[]): number[] {
     const above = stops
       .filter((stop: number) => stop > this.currentFloor)
-      .sort((a, b) => (this.direction === Direction.UP ? a - b : b - a));
+      .sort((a, b) => a - b);
 
     const below = stops
       .filter((stop: number) => stop < this.currentFloor)
-      .sort((a, b) => (this.direction === Direction.UP ? b - a : a - b));
+      .sort((a, b) => b - a);
 
     return this.direction === Direction.UP
       ? [...above, ...below]

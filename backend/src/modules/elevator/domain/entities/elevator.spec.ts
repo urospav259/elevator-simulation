@@ -47,6 +47,42 @@ describe('Elevator', () => {
     expect(elevator.getStops()).toEqual([]);
   });
 
+  it('orders stops by the real route while moving up', () => {
+    const elevator = new Elevator(
+      'elevator-id',
+      5,
+      Direction.UP,
+      DoorState.CLOSED,
+      'building-id',
+      [
+        new ElevatorCall('call-1', 'building-id', 9, Direction.UP),
+        new ElevatorCall('call-2', 'building-id', 3, Direction.DOWN),
+        new ElevatorCall('call-3', 'building-id', 7, Direction.UP),
+        new ElevatorCall('call-4', 'building-id', 1, Direction.DOWN),
+      ],
+    );
+
+    expect(elevator.getStops()).toEqual([7, 9, 3, 1]);
+  });
+
+  it('orders stops by the real route while moving down', () => {
+    const elevator = new Elevator(
+      'elevator-id',
+      5,
+      Direction.DOWN,
+      DoorState.CLOSED,
+      'building-id',
+      [
+        new ElevatorCall('call-1', 'building-id', 9, Direction.UP),
+        new ElevatorCall('call-2', 'building-id', 3, Direction.DOWN),
+        new ElevatorCall('call-3', 'building-id', 7, Direction.UP),
+        new ElevatorCall('call-4', 'building-id', 1, Direction.DOWN),
+      ],
+    );
+
+    expect(elevator.getStops()).toEqual([3, 1, 7, 9]);
+  });
+
   it('opens the door and completes same-floor calls immediately', () => {
     const elevator = new Elevator(
       'elevator-id',
