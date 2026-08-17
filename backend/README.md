@@ -220,6 +220,8 @@ Content-Type: application/json
 }
 ```
 
+The destination endpoint is intentionally guarded by the application layer: a passenger can choose a destination only after the assigned elevator has opened its doors. After a destination is accepted, the backend publishes the updated building state through SSE.
+
 ## Simulation
 
 The backend uses `@nestjs/schedule` and `ElevatorSimulationTicker`. The ticker runs every 15 seconds and moves only active buildings, meaning buildings that currently have assigned elevator calls.

@@ -28,6 +28,17 @@ npm run dev
 
 Open `http://localhost:3001` in the browser.
 
+## UI Flow
+
+The dashboard loads the building list on the server, then uses SSE in the browser for live building state updates.
+
+Main flows:
+
+- Select or create a building.
+- Use the floor grid call buttons to request an elevator from any floor.
+- Use Passenger POV to choose your current floor, call up/down, wait for doors to open, and then choose a destination floor.
+- The POV session resets when the selected elevator reaches the destination floor and opens its doors.
+
 ## Scripts
 
 ```bash

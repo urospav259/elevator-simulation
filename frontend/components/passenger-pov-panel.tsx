@@ -5,14 +5,8 @@ import type {
   BuildingState,
   CallDirection,
   ElevatorSnapshot,
+  PassengerSession,
 } from "@/types/elevator";
-
-export type PassengerSession = {
-  floor: number;
-  direction: CallDirection;
-  elevatorId?: string;
-  destinationFloor?: number;
-};
 
 type PassengerPovPanelProps = {
   selectedBuilding?: Building;
@@ -23,8 +17,8 @@ type PassengerPovPanelProps = {
   pendingDestination: boolean;
   arrivedElevator?: ElevatorSnapshot;
   onPassengerFloorChange: (floor: number) => void;
-  onCallElevator: (floor: number, direction: CallDirection) => void;
-  onPickDestination: (elevatorId: string, floor: number) => void;
+  onCallElevator: (floor: number, direction: CallDirection) => void | Promise<void>;
+  onPickDestination: (elevatorId: string, floor: number) => void | Promise<void>;
   onResetPassengerSession: () => void;
 };
 

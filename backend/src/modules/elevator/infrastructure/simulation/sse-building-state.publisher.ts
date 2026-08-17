@@ -10,9 +10,14 @@ type BuildingStateEvent = {
   elevators: ElevatorSnapshot[];
 };
 
+type BuildingStateStream = {
+  subject: Subject<MessageEvent>;
+  subscribers: number;
+};
+
 @Injectable()
 export class SseBuildingStatePublisher implements BuildingStatePublisher {
-  private readonly streams = new Map<string, Subject<MessageEvent>>();
+  private readonly streams = new Map<string, BuildingStateStream>();
 
   async publish({
     elevators,
@@ -21,7 +26,13 @@ export class SseBuildingStatePublisher implements BuildingStatePublisher {
     elevators: Elevator[] | ElevatorSnapshot[];
     buildingId: string;
   }): Promise<void> {
-    this.getStream(buildingId).next({
+    const stream = this.streams.get(buildingId);
+
+    if (!stream) {
+      return;
+    }
+
+    stream.subject.next({
       type: 'building-state',
       data: {
         buildingId,
@@ -31,14 +42,32 @@ export class SseBuildingStatePublisher implements BuildingStatePublisher {
   }
 
   stream(buildingId: string): Observable<MessageEvent> {
-    return this.getStream(buildingId).asObservable();
+    return new Observable((subscriber) => {
+      const stream = this.getStream(buildingId);
+      stream.subscribers += 1;
+
+      const subscription = stream.subject.subscribe(subscriber);
+
+      return () => {
+        subscription.unsubscribe();
+        stream.subscribers -= 1;
+
+        if (stream.subscribers <= 0) {
+          stream.subject.complete();
+          this.streams.delete(buildingId);
+        }
+      };
+    });
   }
 
-  private getStream(buildingId: string): Subject<MessageEvent> {
+  private getStream(buildingId: string): BuildingStateStream {
     let stream = this.streams.get(buildingId);
 
     if (!stream) {
-      stream = new Subject<MessageEvent>();
+      stream = {
+        subject: new Subject<MessageEvent>(),
+        subscribers: 0,
+      };
       this.streams.set(buildingId, stream);
     }
 

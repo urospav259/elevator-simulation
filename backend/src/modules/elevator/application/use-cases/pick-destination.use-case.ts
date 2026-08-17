@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 
 import { ElevatorCall } from '../../domain/entities/elevator-call';
 import { Direction } from '../../domain/types/direction';
+import { DoorState } from '../../domain/types/door-state';
 import { PickDestinationCommand } from '../commands/pick-destination.command';
 import { BuildingStatePublisher } from '../ports/building-state.publisher';
 import { ElevatorCallRepository } from '../ports/elevator-call.repository';
@@ -19,6 +20,10 @@ export class PickDestinationUseCase {
 
     if (!elevator) {
       throw new Error('Elevator not found');
+    }
+
+    if (elevator.getDoorState() !== DoorState.OPEN) {
+      throw new Error('Cannot pick destination before entering elevator');
     }
 
     if (elevator.getCurrentFloor() === floor) {

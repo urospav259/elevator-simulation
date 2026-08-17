@@ -68,3 +68,10 @@ export type PickDestinationPayload = {
   elevatorId: string;
   floor: number;
 };
+
+export type PassengerSession = {
+  floor: number;
+  direction: CallDirection;
+  elevatorId?: string;
+  destinationFloor?: number;
+};
