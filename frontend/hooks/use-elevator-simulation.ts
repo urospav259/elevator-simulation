@@ -6,6 +6,7 @@ import type {
   Building,
   BuildingState,
   CallDirection,
+  ElevatorSnapshot,
   PassengerSession,
 } from "@/types/elevator";
 
@@ -30,6 +31,21 @@ function parseInteger(value: string) {
 
 function clampFloor(floor: number, floorsCount: number) {
   return Math.min(Math.max(floor, ELEVATOR_LIMITS.minFloor), floorsCount);
+}
+
+function mergeElevatorSnapshots(
+  currentElevators: ElevatorSnapshot[],
+  incomingElevators: ElevatorSnapshot[],
+) {
+  const elevatorsById = new Map(
+    currentElevators.map((elevator) => [elevator.id, elevator]),
+  );
+
+  incomingElevators.forEach((elevator) => {
+    elevatorsById.set(elevator.id, elevator);
+  });
+
+  return Array.from(elevatorsById.values());
 }
 
 export function useElevatorSimulation(
@@ -89,15 +105,23 @@ export function useElevatorSimulation(
         setError(null);
       },
       onMessage: (payload) => {
-        setBuildingState((current) => ({
-          buildingId: payload.buildingId,
-          floors:
-            payload.floors ||
-            current?.floors ||
-            selectedBuilding?.numberOfFloors ||
-            0,
-          elevators: payload.elevators,
-        }));
+        setBuildingState((current) => {
+          const currentElevators =
+            current?.elevators ?? selectedBuilding?.elevators ?? [];
+
+          return {
+            buildingId: payload.buildingId,
+            floors:
+              payload.floors ||
+              current?.floors ||
+              selectedBuilding?.numberOfFloors ||
+              0,
+            elevators: mergeElevatorSnapshots(
+              currentElevators,
+              payload.elevators,
+            ),
+          };
+        });
       },
       onError: () => {
         setStreamStatus("error");
