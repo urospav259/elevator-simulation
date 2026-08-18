@@ -74,7 +74,7 @@ function FloorCallControls({
         type="button"
         disabled={floor === floorsCount || pendingCall === `${floor}-UP`}
         onClick={() => onCallElevator(floor, "UP")}
-        className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
+        className="h-8 w-8 rounded-md border border-control bg-white text-sm font-bold text-primary transition hover:bg-primary-soft disabled:opacity-35"
         aria-label={`Call elevator up from floor ${floor} using ${placement} controls`}
         title="Call up"
       >
@@ -84,7 +84,7 @@ function FloorCallControls({
         type="button"
         disabled={floor === 1 || pendingCall === `${floor}-DOWN`}
         onClick={() => onCallElevator(floor, "DOWN")}
-        className="h-8 w-8 rounded-md border border-[#c9d3dd] bg-white text-sm font-bold text-[#2067a8] transition hover:bg-[#e8f2fb] disabled:opacity-35"
+        className="h-8 w-8 rounded-md border border-control bg-white text-sm font-bold text-primary transition hover:bg-primary-soft disabled:opacity-35"
         aria-label={`Call elevator down from floor ${floor} using ${placement} controls`}
         title="Call down"
       >
@@ -112,7 +112,7 @@ export function ElevatorSimulationPanel({
   if (!selectedBuilding) {
     return (
       <section className="min-w-0">
-        <div className="flex min-h-[520px] items-center justify-center rounded-lg border border-[#d9dee5] bg-white px-6 text-center text-[#53616f]">
+        <div className="flex min-h-[520px] items-center justify-center rounded-lg border border-border bg-white px-6 text-center text-muted">
           Select or create a building to view its live state.
         </div>
       </section>
@@ -122,39 +122,39 @@ export function ElevatorSimulationPanel({
   return (
     <section className="min-w-0">
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col justify-between gap-3 rounded-lg border border-[#d9dee5] bg-white px-5 py-4 shadow-sm md:flex-row md:items-center">
+        <div className="flex flex-col justify-between gap-3 rounded-lg border border-border bg-white px-5 py-4 shadow-sm md:flex-row md:items-center">
           <div>
-            <h2 className="text-xl font-semibold text-[#17202a]">
+            <h2 className="text-xl font-semibold text-foreground">
               {selectedBuilding.name}
             </h2>
-            <p className="mt-1 text-sm text-[#53616f]">
+            <p className="mt-1 text-sm text-muted">
               {floorsCount} floors · {elevators.length || selectedBuilding.elevators.length} elevators
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-sm">
-            <span className="rounded-md bg-[#eef7f1] px-3 py-2 font-medium text-[#1f6e49]">
+            <span className="rounded-md bg-success-soft px-3 py-2 font-medium text-success-strong">
               Live state
             </span>
-            <span className="rounded-md bg-[#fff7e5] px-3 py-2 font-medium text-[#8a5a00]">
+            <span className="rounded-md bg-warning-soft px-3 py-2 font-medium text-warning-strong">
               15s backend tick
             </span>
           </div>
         </div>
 
-        <div className="rounded-lg border border-[#d9dee5] bg-white shadow-sm">
+        <div className="rounded-lg border border-border bg-white shadow-sm">
           <div className="max-h-[680px] overflow-auto">
             <div
-              className="sticky top-0 z-30 grid min-w-[860px] border-b border-[#d9dee5] bg-[#f2f5f8] px-4 py-3 text-xs font-semibold uppercase text-[#53616f]"
+              className="sticky top-0 z-30 grid min-w-[860px] border-b border-border bg-panel px-4 py-3 text-xs font-semibold uppercase text-muted"
               style={{ gridTemplateColumns }}
             >
-              <span className="sticky left-0 z-40 bg-[#f2f5f8] text-center">
+              <span className="sticky left-0 z-40 bg-panel text-center">
                 Call
               </span>
-              <span className="bg-[#f2f5f8]">Floor</span>
+              <span className="bg-panel">Floor</span>
               {elevators.map((elevator, index) => (
                 <span key={elevator.id}>Elevator {index + 1}</span>
               ))}
-              <span className="sticky right-0 z-40 bg-[#f2f5f8] text-center">
+              <span className="sticky right-0 z-40 bg-panel text-center">
                 Call
               </span>
             </div>
@@ -162,7 +162,7 @@ export function ElevatorSimulationPanel({
             {floors.map((floor) => (
               <div
                 key={floor}
-                className="grid min-w-[860px] items-center border-b border-[#edf0f3] px-4 py-2 last:border-b-0"
+                className="grid min-w-[860px] items-center border-b border-divider px-4 py-2 last:border-b-0"
                 style={{ gridTemplateColumns }}
               >
                 <div className="sticky left-0 z-20 bg-white py-1 pr-3 shadow-[8px_0_12px_-12px_rgba(23,32,42,0.65)]">
@@ -175,7 +175,7 @@ export function ElevatorSimulationPanel({
                   />
                 </div>
 
-                <div className="text-sm font-semibold text-[#17202a]">
+                <div className="text-sm font-semibold text-foreground">
                   {floor}
                 </div>
 
@@ -193,10 +193,10 @@ export function ElevatorSimulationPanel({
                         <div
                           className={`flex h-8 min-w-14 items-center justify-center rounded-md px-2 text-sm font-bold text-white ${
                             elevator.displayState === "DOOR_OPEN"
-                              ? "bg-[#178b5b]"
+                              ? "bg-success"
                               : elevator.displayState === "MOVING"
-                                ? "bg-[#2067a8]"
-                                : "bg-[#5f6b77]"
+                                ? "bg-primary"
+                                : "bg-neutral-strong"
                           }`}
                           title={`${getDisplayLabel(elevator.displayState)} · ${getDirectionLabel(elevator.direction)}`}
                         >
@@ -204,14 +204,14 @@ export function ElevatorSimulationPanel({
                         </div>
                       ) : isStop ? (
                         <div
-                          className="flex items-center gap-1 rounded-md bg-[#fff3d8] px-2 py-1 text-xs font-semibold text-[#8a5a00]"
+                          className="flex items-center gap-1 rounded-md bg-warning-soft px-2 py-1 text-xs font-semibold text-warning-strong"
                           title={`Stop ${stopOrder} for this elevator`}
                         >
-                          <span className="h-2 w-2 rounded-full bg-[#d08b16]" />
+                          <span className="h-2 w-2 rounded-full bg-warning" />
                           {stopOrder}
                         </div>
                       ) : (
-                        <div className="h-px w-8 bg-[#d9dee5]" />
+                        <div className="h-px w-8 bg-border" />
                       )}
                     </div>
                   );

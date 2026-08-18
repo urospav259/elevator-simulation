@@ -3,11 +3,59 @@
 :root {
   --background: #f6f7f9;
   --foreground: #17202a;
+  --surface: #ffffff;
+  --muted: #53616f;
+  --subtle: #697786;
+  --border: #d9dee5;
+  --divider: #edf0f3;
+  --control: #c9d3dd;
+  --panel: #f2f5f8;
+  --primary: #2067a8;
+  --primary-hover: #18598f;
+  --primary-soft: #e8f2fb;
+  --primary-strong: #1f5f97;
+  --focus: #9dccf3;
+  --success: #178b5b;
+  --success-soft: #eef7f1;
+  --success-strong: #1f6e49;
+  --warning: #d08b16;
+  --warning-soft: #fff7e5;
+  --warning-strong: #8a5a00;
+  --danger: #c24135;
+  --danger-soft: #fff0ee;
+  --danger-border: #efb2aa;
+  --danger-strong: #8f2d24;
+  --neutral: #9aa4af;
+  --neutral-strong: #5f6b77;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-divider: var(--divider);
+  --color-control: var(--control);
+  --color-panel: var(--panel);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-strong: var(--primary-strong);
+  --color-focus: var(--focus);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-strong: var(--success-strong);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-strong: var(--warning-strong);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-danger-strong: var(--danger-strong);
+  --color-neutral: var(--neutral);
+  --color-neutral-strong: var(--neutral-strong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

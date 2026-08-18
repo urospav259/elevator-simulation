@@ -52,6 +52,12 @@ export type BuildingStateEvent = {
   elevators: ElevatorSnapshot[];
 };
 
+export type CreateBuildingForm = {
+  name: string;
+  floors: string;
+  elevators: string;
+};
+
 export type CreateBuildingPayload = {
   name: string;
   floors: number;
