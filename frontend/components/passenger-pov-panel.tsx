@@ -2,7 +2,6 @@
 
 import type {
   Building,
-  BuildingState,
   CallDirection,
   ElevatorSnapshot,
   PassengerSession,
@@ -10,10 +9,10 @@ import type {
 
 type PassengerPovPanelProps = {
   selectedBuilding?: Building;
-  buildingState: BuildingState | null;
   passengerFloor: number | null;
   passengerFloorInput: string;
   passengerSession: PassengerSession | null;
+  floorsCount: number;
   pendingCall: string | null;
   pendingDestination: boolean;
   arrivedElevator?: ElevatorSnapshot;
@@ -22,16 +21,19 @@ type PassengerPovPanelProps = {
     floor: number | null,
     direction: CallDirection,
   ) => void | Promise<void>;
-  onPickDestination: (elevatorId: string, floor: number) => void | Promise<void>;
+  onPickDestination: (
+    elevatorId: string,
+    floor: number,
+  ) => void | Promise<void>;
   onResetPassengerSession: () => void;
 };
 
 export function PassengerPovPanel({
   selectedBuilding,
-  buildingState,
   passengerFloor,
   passengerFloorInput,
   passengerSession,
+  floorsCount,
   pendingCall,
   pendingDestination,
   arrivedElevator,
@@ -40,8 +42,6 @@ export function PassengerPovPanel({
   onPickDestination,
   onResetPassengerSession,
 }: PassengerPovPanelProps) {
-  const floorsCount =
-    buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 0;
   const destinationFloors = Array.from(
     { length: floorsCount },
     (_, index) => floorsCount - index,
@@ -59,7 +59,8 @@ export function PassengerPovPanel({
             Passenger POV
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Choose your current floor, call an elevator, then select a destination when the doors open.
+            Choose your current floor, call an elevator, then select a
+            destination when the doors open.
           </p>
         </div>
 
@@ -134,7 +135,7 @@ export function PassengerPovPanel({
                     Elevator has arrived
                   </p>
                   <p className="mt-1 text-sm text-muted">
-                    Elevator {arrivedElevator.id.slice(0, 8)} is open on floor {passengerSession.floor}.
+                    Elevator is open on floor {passengerSession.floor}.
                   </p>
                 </div>
                 <span className="rounded-md bg-success-soft px-3 py-2 text-sm font-semibold text-success-strong">
@@ -166,7 +167,8 @@ export function PassengerPovPanel({
                   Destination selected
                 </p>
                 <p className="mt-1 text-muted">
-                  Elevator is heading to floor {passengerSession.destinationFloor}.
+                  Elevator is heading to floor{" "}
+                  {passengerSession.destinationFloor}.
                 </p>
               </div>
               <span className="rounded-md bg-primary-soft px-3 py-2 font-semibold text-primary-strong">
@@ -180,7 +182,8 @@ export function PassengerPovPanel({
                   Waiting on floor {passengerSession.floor}
                 </p>
                 <p className="mt-1 text-muted">
-                  Requested {passengerSession.direction.toLowerCase()}. Destination buttons unlock when doors open.
+                  Requested {passengerSession.direction.toLowerCase()}.
+                  Destination buttons unlock when doors open.
                 </p>
               </div>
               <span className="rounded-md bg-warning-soft px-3 py-2 font-semibold text-warning-strong">

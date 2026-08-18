@@ -1,29 +1,22 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ELEVATOR_LIMITS } from "@/config/elevator-limits";
-import {
-  callElevator as callElevatorRequest,
-  createBuilding as createBuildingRequest,
-  getErrorMessage,
-  pickDestination as pickDestinationRequest,
-  subscribeToBuildingState,
-} from "@/lib/elevator-api";
-import { DoorState } from "@/types/elevator";
 import type {
   Building,
   BuildingState,
   CallDirection,
-  CreateBuildingForm,
   PassengerSession,
 } from "@/types/elevator";
 
-const DEFAULT_FORM: CreateBuildingForm = {
-  name: "Office Tower",
-  floors: "10",
-  elevators: "3",
-};
+import { DoorState } from "@/types/elevator";
+import { ELEVATOR_LIMITS } from "@/config/elevator-limits";
+import {
+  callElevator as callElevatorRequest,
+  getErrorMessage,
+  pickDestination as pickDestinationRequest,
+  subscribeToBuildingState,
+} from "@/lib/elevator-api";
 
 function parseInteger(value: string) {
   if (!value.trim()) {
@@ -40,35 +33,25 @@ function clampFloor(floor: number, floorsCount: number) {
 }
 
 export function useElevatorSimulation(
-  initialBuildings: Building[],
+  selectedBuilding: Building | undefined,
   initialError?: string,
 ) {
-  const [buildings, setBuildings] = useState<Building[]>(initialBuildings);
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(
-    initialBuildings[0]?.id ?? null,
-  );
+  const selectedBuildingId = selectedBuilding?.id || null;
   const [buildingState, setBuildingState] = useState<BuildingState | null>(
     null,
   );
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [form, setForm] = useState<CreateBuildingForm>(DEFAULT_FORM);
-  const [isCreating, setIsCreating] = useState(false);
   const [pendingCall, setPendingCall] = useState<string | null>(null);
   const [pendingDestination, setPendingDestination] = useState(false);
   const [passengerFloorInput, setPassengerFloorInput] = useState("1");
   const [passengerSession, setPassengerSession] =
     useState<PassengerSession | null>(null);
-  const [error, setError] = useState<string | null>(initialError ?? null);
+  const [error, setError] = useState<string | null>(initialError || null);
   const [streamStatus, setStreamStatus] = useState<"idle" | "open" | "error">(
     "idle",
   );
 
   const selectedBuildingIdRef = useRef(selectedBuildingId);
 
-  const selectedBuilding = useMemo(
-    () => buildings.find((building) => building.id === selectedBuildingId),
-    [buildings, selectedBuildingId],
-  );
   const passengerFloor = useMemo(
     () => parseInteger(passengerFloorInput),
     [passengerFloorInput],
@@ -91,18 +74,14 @@ export function useElevatorSimulation(
   }, [selectedBuildingId]);
 
   useEffect(() => {
-    if (!selectedBuildingId) {
-      setBuildingState(null);
-      setPassengerSession(null);
-      setPassengerFloorInput("1");
-      setStreamStatus("idle");
-      return;
-    }
-
     setBuildingState(null);
     setPassengerSession(null);
     setPassengerFloorInput("1");
     setStreamStatus("idle");
+
+    if (!selectedBuildingId) {
+      return;
+    }
 
     const unsubscribe = subscribeToBuildingState(selectedBuildingId, {
       onOpen: () => {
@@ -113,9 +92,9 @@ export function useElevatorSimulation(
         setBuildingState((current) => ({
           buildingId: payload.buildingId,
           floors:
-            payload.floors ??
-            current?.floors ??
-            selectedBuilding?.numberOfFloors ??
+            payload.floors ||
+            current?.floors ||
+            selectedBuilding?.numberOfFloors ||
             0,
           elevators: payload.elevators,
         }));
@@ -136,64 +115,6 @@ export function useElevatorSimulation(
     setPassengerFloorInput("1");
     setPendingCall(null);
     setPendingDestination(false);
-  }
-
-  function selectBuilding(buildingId: string) {
-    if (buildingId === selectedBuildingId) {
-      return;
-    }
-
-    resetPassengerPov();
-    setSelectedBuildingId(buildingId);
-  }
-
-  async function createBuilding(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setIsCreating(true);
-
-    const name = form.name.trim();
-    const floors = parseInteger(form.floors);
-    const elevators = parseInteger(form.elevators);
-
-    if (!name) {
-      setError("Building name is required.");
-      setIsCreating(false);
-      return;
-    }
-
-    if (
-      !floors ||
-      floors < ELEVATOR_LIMITS.minFloor ||
-      floors > ELEVATOR_LIMITS.maxBuildingFloors ||
-      !elevators ||
-      elevators < ELEVATOR_LIMITS.minElevators ||
-      elevators > ELEVATOR_LIMITS.maxElevators
-    ) {
-      setError(
-        `Building must have ${ELEVATOR_LIMITS.minFloor}-${ELEVATOR_LIMITS.maxBuildingFloors} floors and ${ELEVATOR_LIMITS.minElevators}-${ELEVATOR_LIMITS.maxElevators} elevators.`,
-      );
-      setIsCreating(false);
-      return;
-    }
-
-    try {
-      const building = await createBuildingRequest({
-        name,
-        floors,
-        elevators,
-      });
-
-      setBuildings((current) => [building, ...current]);
-      resetPassengerPov();
-      setSelectedBuildingId(building.id);
-      setForm(DEFAULT_FORM);
-      setIsCreateOpen(false);
-    } catch (createError) {
-      setError(getErrorMessage(createError));
-    } finally {
-      setIsCreating(false);
-    }
   }
 
   async function callElevator(
@@ -284,7 +205,7 @@ export function useElevatorSimulation(
 
       const floor = parseInteger(currentFloor);
 
-      return String(clampFloor(floor ?? ELEVATOR_LIMITS.minFloor, floorsCount));
+      return String(clampFloor(floor || ELEVATOR_LIMITS.minFloor, floorsCount));
     });
   }, [buildingState?.floors, selectedBuilding?.numberOfFloors]);
 
@@ -309,24 +230,14 @@ export function useElevatorSimulation(
   return {
     arrivedElevator,
     buildingState,
-    buildings,
-    createBuilding,
     error,
-    form,
-    isCreateOpen,
-    isCreating,
     passengerFloor,
     passengerFloorInput,
     passengerSession,
     pendingCall,
     pendingDestination,
     pickDestination,
-    selectedBuilding,
-    selectedBuildingId,
-    setForm,
-    setIsCreateOpen,
     resetPassengerPov,
-    selectBuilding,
     streamStatus,
     updatePassengerFloor,
     callElevator,

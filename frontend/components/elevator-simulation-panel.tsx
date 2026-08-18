@@ -2,18 +2,18 @@
 
 import { useMemo } from "react";
 
-import type {
-  Building,
-  BuildingState,
-  CallDirection,
-  Direction,
-  ElevatorDisplayState,
-} from "@/types/elevator";
+import type { Building, BuildingState, CallDirection } from "@/types/elevator";
+import {
+  getDirectionLabel,
+  getDirectionSymbol,
+  getDisplayLabel,
+} from "@/utils/floorUtils";
 
 type ElevatorSimulationPanelProps = {
   selectedBuilding?: Building;
   buildingState: BuildingState | null;
   pendingCall: string | null;
+  floorsCount: number;
   onCallElevator: (floor: number, direction: CallDirection) => void;
 };
 
@@ -24,42 +24,6 @@ type FloorCallControlsProps = {
   placement: "left" | "right";
   onCallElevator: (floor: number, direction: CallDirection) => void;
 };
-
-function getDirectionLabel(direction: Direction): string {
-  if (direction === "UP") {
-    return "Up";
-  }
-
-  if (direction === "DOWN") {
-    return "Down";
-  }
-
-  return "Idle";
-}
-
-function getDisplayLabel(displayState: ElevatorDisplayState): string {
-  if (displayState === "DOOR_OPEN") {
-    return "Door open";
-  }
-
-  if (displayState === "MOVING") {
-    return "Moving";
-  }
-
-  return "Idle";
-}
-
-function directionSymbol(direction: Direction): string {
-  if (direction === "UP") {
-    return "↑";
-  }
-
-  if (direction === "DOWN") {
-    return "↓";
-  }
-
-  return "-";
-}
 
 function FloorCallControls({
   floor,
@@ -98,15 +62,17 @@ export function ElevatorSimulationPanel({
   selectedBuilding,
   buildingState,
   pendingCall,
+  floorsCount,
   onCallElevator,
 }: ElevatorSimulationPanelProps) {
-  const elevators = buildingState?.elevators ?? [];
-  const floorsCount =
-    buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 0;
+  const elevators = buildingState?.elevators || [];
+
   const floors = useMemo(
-    () => Array.from({ length: floorsCount }, (_, index) => floorsCount - index),
+    () =>
+      Array.from({ length: floorsCount }, (_, index) => floorsCount - index),
     [floorsCount],
   );
+
   const gridTemplateColumns = `116px 72px repeat(${Math.max(elevators.length, 1)}, minmax(96px, 1fr)) 116px`;
 
   if (!selectedBuilding) {
@@ -128,7 +94,8 @@ export function ElevatorSimulationPanel({
               {selectedBuilding.name}
             </h2>
             <p className="mt-1 text-sm text-muted">
-              {floorsCount} floors · {elevators.length || selectedBuilding.elevators.length} elevators
+              {floorsCount} floors ·{" "}
+              {elevators.length || selectedBuilding.elevators.length} elevators
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-sm">
@@ -200,7 +167,7 @@ export function ElevatorSimulationPanel({
                           }`}
                           title={`${getDisplayLabel(elevator.displayState)} · ${getDirectionLabel(elevator.direction)}`}
                         >
-                          {directionSymbol(elevator.direction)}
+                          {getDirectionSymbol(elevator.direction)}
                         </div>
                       ) : isStop ? (
                         <div

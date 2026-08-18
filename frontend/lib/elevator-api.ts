@@ -96,7 +96,7 @@ const api = {
   },
 };
 
-export async function listBuildings(): Promise<Building[]> {
+export async function getAllBuildings(): Promise<Building[]> {
   const data = await api.get<unknown[]>(API_ENDPOINTS.BUILDINGS);
   return data.map(normalizeBuilding);
 }
@@ -112,7 +112,9 @@ export async function createBuilding(
   return normalizeBuilding(data);
 }
 
-export async function callElevator(payload: CallElevatorPayload): Promise<void> {
+export async function callElevator(
+  payload: CallElevatorPayload,
+): Promise<void> {
   await api.post<void, CallElevatorPayload>(
     API_ENDPOINTS.ELEVATOR_CALLS,
     payload,
