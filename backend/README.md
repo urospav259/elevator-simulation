@@ -226,7 +226,7 @@ The destination endpoint is intentionally guarded by the application layer: a pa
 
 The backend uses `@nestjs/schedule` and `ElevatorSimulationTicker`. The ticker runs every 15 seconds and moves only active buildings, meaning buildings that currently have assigned elevator calls.
 
-This keeps the simulation state backend-driven. If multiple clients follow the same building, they all receive the same state through SSE.
+This keeps the simulation state backend-driven. If multiple clients follow the same building, they all receive the same state through SSE. After destination selection, the backend publishes the full elevator state for the building so clients do not need to infer or reconstruct missing elevators.
 
 ## Error Handling
 
@@ -242,3 +242,5 @@ DTO validation is handled at the HTTP boundary through NestJS `ValidationPipe`, 
 - TypeORM `synchronize` is disabled. Database schema changes are handled through migrations.
 - The application layer depends on ports, while concrete PostgreSQL implementations are wired in `elevator.module.ts`.
 - Completed elevator calls remain in the database for audit/debug purposes. They can later be archived or removed through a cleanup job if needed.
+- The current scheduler is designed for a normal single backend instance. In a multi-instance deployment, the ticker should be protected by a single-worker strategy or a database advisory lock.
+- Elevator/call persistence is intentionally simple for this assignment. A production hardening step would introduce explicit transaction boundaries around multi-repository writes.
