@@ -29,10 +29,7 @@ export class PickDestinationUseCase {
     if (elevator.getCurrentFloor() === floor) {
       elevator.openDoor();
       await this.elevators.save(elevator);
-      await this.buildingStatePublisher.publish({
-        buildingId: elevator.getBuildingId(),
-        elevators: [elevator],
-      });
+      await this.publishCurrentBuildingState(elevator.getBuildingId());
       return;
     }
 
@@ -51,9 +48,15 @@ export class PickDestinationUseCase {
 
     await this.elevatorCallRepository.save(elevatorCall);
     await this.elevators.save(elevator);
+    await this.publishCurrentBuildingState(elevator.getBuildingId());
+  }
+
+  private async publishCurrentBuildingState(buildingId: string): Promise<void> {
+    const elevators = await this.elevators.list(buildingId);
+
     await this.buildingStatePublisher.publish({
-      buildingId: elevator.getBuildingId(),
-      elevators: [elevator],
+      buildingId,
+      elevators,
     });
   }
 }

@@ -78,7 +78,7 @@ describe('PickDestinationUseCase', () => {
     expect(publisher.publishedState).toBeNull();
   });
 
-  it('adds a destination stop to an elevator with open doors and publishes state', async () => {
+  it('adds a destination stop to an elevator with open doors and publishes full building state', async () => {
     const elevator = new Elevator(
       'elevator-id',
       3,
@@ -86,7 +86,17 @@ describe('PickDestinationUseCase', () => {
       DoorState.OPEN,
       'building-id',
     );
-    const elevatorRepository = new FakeElevatorRepository([elevator]);
+    const otherElevator = new Elevator(
+      'other-elevator-id',
+      7,
+      Direction.IDLE,
+      DoorState.CLOSED,
+      'building-id',
+    );
+    const elevatorRepository = new FakeElevatorRepository([
+      elevator,
+      otherElevator,
+    ]);
     const callRepository = new FakeElevatorCallRepository();
     const publisher = new FakeBuildingStatePublisher();
     const useCase = new PickDestinationUseCase(
@@ -102,5 +112,9 @@ describe('PickDestinationUseCase', () => {
     );
     expect(elevatorRepository.savedElevator?.getStops()).toEqual([8]);
     expect(publisher.publishedState?.buildingId).toBe('building-id');
+    expect(publisher.publishedState?.elevators).toHaveLength(2);
+    expect(
+      publisher.publishedState?.elevators.map((item) => item.getId()),
+    ).toEqual(['elevator-id', 'other-elevator-id']);
   });
 });
