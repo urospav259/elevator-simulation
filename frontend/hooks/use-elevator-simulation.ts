@@ -52,7 +52,7 @@ export function useElevatorSimulation(
   selectedBuilding: Building | undefined,
   initialError?: string,
 ) {
-  const selectedBuildingId = selectedBuilding?.id || null;
+  const selectedBuildingId = selectedBuilding?.id ?? null;
   const [buildingState, setBuildingState] = useState<BuildingState | null>(
     null,
   );
@@ -61,13 +61,15 @@ export function useElevatorSimulation(
   const [passengerFloorInput, setPassengerFloorInput] = useState("1");
   const [passengerSession, setPassengerSession] =
     useState<PassengerSession | null>(null);
-  const [error, setError] = useState<string | null>(initialError || null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const [streamStatus, setStreamStatus] = useState<"idle" | "open" | "error">(
     "idle",
   );
 
   const selectedBuildingIdRef = useRef(selectedBuildingId);
 
+  const floorsCount =
+    buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 1;
   const passengerFloor = useMemo(
     () => parseInteger(passengerFloorInput),
     [passengerFloorInput],
@@ -112,9 +114,9 @@ export function useElevatorSimulation(
           return {
             buildingId: payload.buildingId,
             floors:
-              payload.floors ||
-              current?.floors ||
-              selectedBuilding?.numberOfFloors ||
+              payload.floors ??
+              current?.floors ??
+              selectedBuilding?.numberOfFloors ??
               0,
             elevators: mergeElevatorSnapshots(
               currentElevators,
@@ -212,16 +214,10 @@ export function useElevatorSimulation(
       return;
     }
 
-    const floorsCount =
-      buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 1;
-
     setPassengerFloorInput(String(clampFloor(floor, floorsCount)));
   }
 
   useEffect(() => {
-    const floorsCount =
-      buildingState?.floors ?? selectedBuilding?.numberOfFloors ?? 1;
-
     setPassengerFloorInput((currentFloor) => {
       if (currentFloor === "") {
         return currentFloor;
@@ -229,9 +225,11 @@ export function useElevatorSimulation(
 
       const floor = parseInteger(currentFloor);
 
-      return String(clampFloor(floor || ELEVATOR_LIMITS.minFloor, floorsCount));
+      return String(
+        clampFloor(floor ?? ELEVATOR_LIMITS.minFloor, floorsCount),
+      );
     });
-  }, [buildingState?.floors, selectedBuilding?.numberOfFloors]);
+  }, [floorsCount]);
 
   useEffect(() => {
     if (!passengerSession?.elevatorId || !passengerSession.destinationFloor) {
@@ -255,6 +253,7 @@ export function useElevatorSimulation(
     arrivedElevator,
     buildingState,
     error,
+    floorsCount,
     passengerFloor,
     passengerFloorInput,
     passengerSession,

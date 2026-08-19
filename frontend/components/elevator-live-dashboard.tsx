@@ -22,9 +22,6 @@ export function ElevatorLiveDashboard({
 }: ElevatorLiveDashboardProps) {
   const simulation = useElevatorSimulation(selectedBuilding, loadingError);
 
-  const floorCount =
-    simulation.buildingState?.floors || selectedBuilding?.numberOfFloors || 0;
-
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <div className="flex items-center gap-3 self-start rounded-md border border-border bg-white px-3 py-2 shadow-sm">
@@ -61,7 +58,7 @@ export function ElevatorLiveDashboard({
         passengerFloorInput={simulation.passengerFloorInput}
         passengerSession={simulation.passengerSession}
         pendingCall={simulation.pendingCall}
-        floorsCount={floorCount}
+        floorsCount={simulation.floorsCount}
         pendingDestination={simulation.pendingDestination}
         arrivedElevator={simulation.arrivedElevator}
         onPassengerFloorChange={simulation.updatePassengerFloor}
@@ -74,7 +71,7 @@ export function ElevatorLiveDashboard({
         selectedBuilding={selectedBuilding}
         buildingState={simulation.buildingState}
         pendingCall={simulation.pendingCall}
-        floorsCount={floorCount}
+        floorsCount={simulation.floorsCount}
         onCallElevator={simulation.callElevator}
       />
     </div>
