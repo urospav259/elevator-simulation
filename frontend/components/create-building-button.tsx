@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import type { CreateBuildingForm } from "@/types/elevator";
 
 import { ELEVATOR_LIMITS } from "@/config/elevator-limits";
+import { Button } from "@/components/ui/button";
+import { InputField } from "@/components/ui/input-field";
 import { createBuilding, getErrorMessage } from "@/lib/elevator-api";
 
 const DEFAULT_FORM: CreateBuildingForm = {
@@ -14,8 +16,6 @@ const DEFAULT_FORM: CreateBuildingForm = {
   elevators: "3",
 };
 
-// must be client component,
-// because it uses state and router
 
 function parseInteger(value: string) {
   if (!value.trim()) {
@@ -79,13 +79,9 @@ export function CreateBuildingButton() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
-      >
+      <Button size="sm" onClick={() => setIsOpen(true)}>
         New building
-      </button>
+      </Button>
 
       {isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 py-6">
@@ -108,14 +104,14 @@ export function CreateBuildingButton() {
                   The new building becomes selected immediately after creation.
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsOpen(false)}
-                className="h-8 w-8 rounded-md border border-control text-lg leading-none text-muted hover:bg-panel"
                 aria-label="Close create building modal"
               >
                 x
-              </button>
+              </Button>
             </div>
 
             {error ? (
@@ -127,69 +123,52 @@ export function CreateBuildingButton() {
               </div>
             ) : null}
 
-            <label className="mt-5 block text-sm font-medium text-foreground">
-              Name
-              <input
-                value={form.name}
-                onChange={(event) =>
-                  setForm({ ...form, name: event.target.value })
-                }
-                className="mt-1 h-10 w-full rounded-md border border-control px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-focus"
-                minLength={1}
-                maxLength={120}
-                required
-              />
-            </label>
+            <InputField
+              label="Name"
+              value={form.name}
+              onChange={(event) =>
+                setForm({ ...form, name: event.target.value })
+              }
+              minLength={1}
+              maxLength={120}
+              required
+            />
 
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <label className="block text-sm font-medium text-foreground">
-                Floors
-                <input
-                  type="number"
-                  value={form.floors}
-                  onChange={(event) =>
-                    setForm({ ...form, floors: event.target.value })
-                  }
-                  className="mt-1 h-10 w-full rounded-md border border-control px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-focus"
-                  min={ELEVATOR_LIMITS.minFloor}
-                  max={ELEVATOR_LIMITS.maxBuildingFloors}
-                  inputMode="numeric"
-                  required
-                />
-              </label>
+              <InputField
+                label="Floors"
+                type="number"
+                value={form.floors}
+                onChange={(event) =>
+                  setForm({ ...form, floors: event.target.value })
+                }
+                min={ELEVATOR_LIMITS.minFloor}
+                max={ELEVATOR_LIMITS.maxBuildingFloors}
+                inputMode="numeric"
+                required
+              />
 
-              <label className="block text-sm font-medium text-foreground">
-                Elevators
-                <input
-                  type="number"
-                  value={form.elevators}
-                  onChange={(event) =>
-                    setForm({ ...form, elevators: event.target.value })
-                  }
-                  className="mt-1 h-10 w-full rounded-md border border-control px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-focus"
-                  min={ELEVATOR_LIMITS.minElevators}
-                  max={ELEVATOR_LIMITS.maxElevators}
-                  inputMode="numeric"
-                  required
-                />
-              </label>
+              <InputField
+                label="Elevators"
+                type="number"
+                value={form.elevators}
+                onChange={(event) =>
+                  setForm({ ...form, elevators: event.target.value })
+                }
+                min={ELEVATOR_LIMITS.minElevators}
+                max={ELEVATOR_LIMITS.maxElevators}
+                inputMode="numeric"
+                required
+              />
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="rounded-md border border-control px-4 py-2 text-sm font-semibold text-muted transition hover:bg-panel"
-              >
+              <Button variant="secondary" onClick={() => setIsOpen(false)}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
-              >
+              </Button>
+              <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Creating..." : "Create building"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
