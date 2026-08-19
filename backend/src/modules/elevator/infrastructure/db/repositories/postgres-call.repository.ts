@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ElevatorCallRepository } from '../../application/ports/elevator-call.repository';
-import { ElevatorCall } from '../../domain/entities/elevator-call';
-import { ElevatorCallOrmEntity } from './typeorm/elevator-call.orm-entity';
+import { ElevatorCallRepository } from '../../../application/ports/elevator-call.repository';
+import { ElevatorCall } from '../../../domain/entities/elevator-call';
+import { ElevatorCallOrmEntity } from '../typeorm/elevator-call.orm-entity';
 
 @Injectable()
 export class PostgresCallRepository implements ElevatorCallRepository {

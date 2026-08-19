@@ -15,9 +15,9 @@ import { MoveElevatorsUseCase } from './application/use-cases/move-elevators.use
 import { PickDestinationUseCase } from './application/use-cases/pick-destination.use-case';
 import { ElevatorAssignmentService } from './domain/services/elevator-assignment.service';
 import { ElevatorTypeOrmModule } from './infrastructure/db/typeorm.module';
-import { PostgresBuildingRepository } from './infrastructure/db/postgres-building.repository';
-import { PostgresCallRepository } from './infrastructure/db/postgres-call.repository';
-import { PostgresElevatorRepository } from './infrastructure/db/postgres-elevator.repository';
+import { PostgresBuildingRepository } from './infrastructure/db/repositories/postgres-building.repository';
+import { PostgresCallRepository } from './infrastructure/db/repositories/postgres-call.repository';
+import { PostgresElevatorRepository } from './infrastructure/db/repositories/postgres-elevator.repository';
 import { ElevatorSimulationTicker } from './infrastructure/simulation/elevator-simulation.ticker';
 import { SseBuildingStatePublisher } from './infrastructure/simulation/sse-building-state.publisher';
 import { BuildingController } from './interface/controllers/building.controller';

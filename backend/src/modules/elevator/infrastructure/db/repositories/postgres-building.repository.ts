@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 
-import { BuildingRepository } from '../../application/ports/building.repository';
-import { BuildingStateRepository } from '../../application/ports/building-state.repository';
-import { Building } from '../../domain/entities/building';
-import { Elevator } from '../../domain/entities/elevator';
-import { ElevatorCall } from '../../domain/entities/elevator-call';
-import { BuildingState } from '../../domain/types/building-state';
-import { CallStatus } from '../../domain/types/call-status';
-import { BuildingOrmEntity } from './typeorm/building.orm-entity';
-import { ElevatorCallOrmEntity } from './typeorm/elevator-call.orm-entity';
-import { ElevatorOrmEntity } from './typeorm/elevator.orm-entity';
+import { BuildingRepository } from '../../../application/ports/building.repository';
+import { BuildingStateRepository } from '../../../application/ports/building-state.repository';
+import { Building } from '../../../domain/entities/building';
+import { Elevator } from '../../../domain/entities/elevator';
+import { ElevatorCall } from '../../../domain/entities/elevator-call';
+import { BuildingState } from '../../../domain/types/building-state';
+import { CallStatus } from '../../../domain/types/call-status';
+import { BuildingOrmEntity } from '../typeorm/building.orm-entity';
+import { ElevatorCallOrmEntity } from '../typeorm/elevator-call.orm-entity';
+import { ElevatorOrmEntity } from '../typeorm/elevator.orm-entity';
 
 @Injectable()
 export class PostgresBuildingRepository
