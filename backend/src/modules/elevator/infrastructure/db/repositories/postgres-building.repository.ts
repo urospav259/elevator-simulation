@@ -80,7 +80,9 @@ export class PostgresBuildingRepository
   }
 
   async getBuildingData(buildingId: string): Promise<BuildingState> {
-    const building = await this.buildings.findOne({ where: { id: buildingId } });
+    const building = await this.buildings.findOne({
+      where: { id: buildingId },
+    });
 
     if (!building) {
       throw new Error('Building not found');

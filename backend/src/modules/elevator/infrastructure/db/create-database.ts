@@ -35,8 +35,7 @@ function getClientConfig(database: string): ClientConfig {
 
 async function createDatabaseIfMissing(): Promise<void> {
   const databaseName = getDatabaseName();
-  const maintenanceDatabase =
-    process.env.POSTGRES_MAINTENANCE_DB ?? 'postgres';
+  const maintenanceDatabase = process.env.POSTGRES_MAINTENANCE_DB ?? 'postgres';
 
   const client = new Client(getClientConfig(maintenanceDatabase));
 

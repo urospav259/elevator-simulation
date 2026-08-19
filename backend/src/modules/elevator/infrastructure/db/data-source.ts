@@ -12,11 +12,15 @@ const databaseUrl = process.env.DATABASE_URL;
 export const ElevatorDataSource = new DataSource({
   type: 'postgres',
   url: databaseUrl,
-  host: databaseUrl ? undefined : process.env.POSTGRES_HOST ?? 'localhost',
+  host: databaseUrl ? undefined : (process.env.POSTGRES_HOST ?? 'localhost'),
   port: databaseUrl ? undefined : Number(process.env.POSTGRES_PORT ?? 5432),
-  username: databaseUrl ? undefined : process.env.POSTGRES_USER ?? 'postgres',
-  password: databaseUrl ? undefined : process.env.POSTGRES_PASSWORD ?? 'postgres',
-  database: databaseUrl ? undefined : process.env.POSTGRES_DB ?? 'elevator_simulation',
+  username: databaseUrl ? undefined : (process.env.POSTGRES_USER ?? 'postgres'),
+  password: databaseUrl
+    ? undefined
+    : (process.env.POSTGRES_PASSWORD ?? 'postgres'),
+  database: databaseUrl
+    ? undefined
+    : (process.env.POSTGRES_DB ?? 'elevator_simulation'),
   entities: [BuildingOrmEntity, ElevatorOrmEntity, ElevatorCallOrmEntity],
   migrations: [
     CreateElevatorSchema20260812000000,

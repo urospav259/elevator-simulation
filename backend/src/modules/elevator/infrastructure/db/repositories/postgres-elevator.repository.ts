@@ -38,7 +38,9 @@ export class PostgresElevatorRepository implements ElevatorRepository {
       elevators.map((elevator) => elevator.id),
     );
 
-    return elevators.map((elevator) => this.toDomain(elevator, callsByElevator));
+    return elevators.map((elevator) =>
+      this.toDomain(elevator, callsByElevator),
+    );
   }
 
   async save(elevator: Elevator): Promise<void> {

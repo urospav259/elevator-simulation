@@ -16,7 +16,7 @@ The backend owns the elevator state and simulation. The frontend renders the bui
 
 ## Requirements
 
-- Node.js
+- Node.js (version 22 is recommended)
 - npm
 - Docker, for local PostgreSQL
 

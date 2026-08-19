@@ -88,9 +88,15 @@ export class CreateElevatorSchema20260812000000 implements MigrationInterface {
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_created_at');
-    await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_assigned_elevator_id');
-    await queryRunner.query('DROP INDEX IF EXISTS idx_elevator_calls_building_id_status');
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS idx_elevator_calls_created_at',
+    );
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS idx_elevator_calls_assigned_elevator_id',
+    );
+    await queryRunner.query(
+      'DROP INDEX IF EXISTS idx_elevator_calls_building_id_status',
+    );
     await queryRunner.query('DROP INDEX IF EXISTS idx_elevators_building_id');
     await queryRunner.query('DROP TABLE IF EXISTS elevator_calls');
     await queryRunner.query('DROP TABLE IF EXISTS elevators');
