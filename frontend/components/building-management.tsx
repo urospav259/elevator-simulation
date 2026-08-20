@@ -33,7 +33,7 @@ export function BuildingManagement({
           No buildings yet. Create one to start the simulation.
         </div>
       ) : (
-        <div className="grid gap-3 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
+        <div className="grid gap-3 p-0.5 lg:min-h-0 lg:overflow-y-auto lg:pr-2">
           {buildings.map((building) => {
             const isSelected = building.id === selectedBuildingId;
 

@@ -18,7 +18,7 @@ The backend owns the elevator state and simulation. The frontend renders the bui
 
 - Node.js (version 22 is recommended)
 - npm
-- Docker, for local PostgreSQL
+- PostgreSQL, on docker, for local PostgreSQL
 
 ## Local Setup
 
